@@ -230,24 +230,23 @@ async def list_generation_jobs(limit: int = 20, skip: int = 0):
 @api_router.post("/zerorepo/quick-demo")
 async def quick_demo():
     """
-    Quick demo endpoint to test ZeroRepo system with a simple ML example.
-    Optimized for speed with minimal iterations.
+    Quick demo endpoint - OPTIMIZED for speed with minimal real AI calls.
     """
     try:
-        # Use a simple, fast example with minimal iterations
-        demo_goal = "Generate a basic linear regression class with fit and predict methods"
+        # Use a simple, fast example with minimal processing
+        demo_goal = "Generate a basic math calculator with add and subtract functions"
         
-        logging.info("Starting ZeroRepo quick demo (optimized)")
+        logging.info("Starting OPTIMIZED ZeroRepo quick demo")
         
-        # Run minimal generation with faster model
+        # Ultra-minimal config for speed
         config = ProjectConfig(
             project_goal=demo_goal,
-            domain="ml", 
-            max_iterations=1,  # Reduced from 5 to 1 for speed
-            llm_model="gpt-4o-mini"  # Faster model
+            domain="general",  # Changed from "ml" to "general" for simpler processing
+            max_iterations=1,  # Just 1 iteration for speed
+            llm_model="gpt-4o-mini"  # Fastest model
         )
         
-        # For demo, just run planning stage
+        # Run only the proposal stage (fastest)
         orchestrator = ZeroRepoOrchestrator(
             config,
             emergent_api_key=os.environ.get('EMERGENT_LLM_KEY', 'sk-emergent-b99311bB564934e547')
@@ -262,9 +261,10 @@ async def quick_demo():
             "demo_goal": demo_goal,
             "features_generated": len(feature_paths),
             "nodes_in_graph": len(capability_graph.nodes),
-            "sample_features": [fp.path for fp in feature_paths[:5]],
-            "message": "Demo completed successfully - ZeroRepo system with real AI is working!",
-            "optimization": "Using GPT-4o-mini with 1 iteration for speed"
+            "sample_features": [fp.path for fp in feature_paths[:8]],
+            "message": "Quick demo completed - ZeroRepo AI is working perfectly!",
+            "optimization": "Ultra-fast demo: 1 iteration, general domain, minimal processing",
+            "performance_note": "Full generation available on the Generate page"
         }
         
     except Exception as e:
@@ -272,7 +272,9 @@ async def quick_demo():
         return {
             "success": False,
             "error": str(e),
-            "message": "Demo encountered an error"
+            "message": "Demo encountered an error",
+            "features_generated": 0,
+            "nodes_in_graph": 0
         }
 
 # Background task functions
