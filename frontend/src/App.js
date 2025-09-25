@@ -272,6 +272,46 @@ const ZeroRepoInterface = () => {
           </div>
         </div>
 
+        {/* Live Job Progress */}
+        {jobProgress && jobProgress.status === "running" && (
+          <div className="mt-6 p-6 bg-slate-800 border border-yellow-600 rounded-lg">
+            <h3 className="font-semibold text-yellow-400 mb-4">
+              🔄 Live Generation Progress
+            </h3>
+            
+            <div className="space-y-4">
+              {/* Progress Bar */}
+              <div className="w-full bg-gray-700 rounded-full h-3">
+                <div 
+                  className="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-500"
+                  style={{ width: `${jobProgress.progress}%` }}
+                ></div>
+              </div>
+              
+              {/* Progress Details */}
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-300">{jobProgress.progress}% Complete</span>
+                <span className="text-blue-300">{jobProgress.current_stage}</span>
+              </div>
+              
+              {/* Stage Information */}
+              <div className="bg-slate-700 p-3 rounded text-sm">
+                <div className="flex items-center space-x-2 mb-2">
+                  <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+                  <span className="text-yellow-300 font-medium">Currently Processing:</span>
+                </div>
+                <p className="text-gray-300 ml-4">{jobProgress.current_stage}</p>
+              </div>
+              
+              {/* Expected Timeline */}
+              <div className="text-xs text-gray-400">
+                <p>⏱️ AI-powered generation typically takes 2-5 minutes for quality results</p>
+                <p>🧠 The system is making real LLM calls for intelligent feature planning</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Results Section */}
         {error && (
           <div className="mt-6 p-4 bg-red-900 border border-red-600 rounded-lg">
