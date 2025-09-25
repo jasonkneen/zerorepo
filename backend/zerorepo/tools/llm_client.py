@@ -198,42 +198,85 @@ class EmergentLLMClient:
         
         # Exploit feature selection
         if "exploit" in prompt.lower() and "selected_feature_paths" in prompt:
-            return json.dumps({
-                "all_selected_feature_paths": [
-                    "ml/algorithms/regression/linear",
-                    "ml/algorithms/classification/logistic",
-                    "ml/preprocessing/scaling",
-                    "ml/evaluation/metrics"
-                ]
-            })
+            if "logic" in prompt.lower() or "problem" in prompt.lower():
+                return json.dumps({
+                    "all_selected_feature_paths": [
+                        "logic/problem_solving/constraint_satisfaction",
+                        "logic/reasoning/boolean_logic",
+                        "algorithms/search/backtracking",
+                        "data_structures/constraint_graph"
+                    ]
+                })
+            elif "ml" in prompt.lower() or "machine" in prompt.lower():
+                return json.dumps({
+                    "all_selected_feature_paths": [
+                        "ml/algorithms/regression/linear",
+                        "ml/algorithms/classification/logistic",
+                        "ml/preprocessing/scaling",
+                        "ml/evaluation/metrics"
+                    ]
+                })
+            else:
+                return json.dumps({
+                    "all_selected_feature_paths": [
+                        "core/algorithms/sorting",
+                        "core/data_structures/array",
+                        "utils/helpers/validation"
+                    ]
+                })
             
         # Explore feature selection
         elif "explore" in prompt.lower() and "selected_feature_paths" in prompt:
-            return json.dumps({
-                "all_selected_feature_paths": [
-                    "ml/algorithms/clustering/kmeans",
-                    "ml/data/validation"
-                ]
-            })
+            if "logic" in prompt.lower():
+                return json.dumps({
+                    "all_selected_feature_paths": [
+                        "logic/solvers/sat_solver",
+                        "algorithms/optimization/genetic"
+                    ]
+                })
+            elif "ml" in prompt.lower():
+                return json.dumps({
+                    "all_selected_feature_paths": [
+                        "ml/algorithms/clustering/kmeans",
+                        "ml/data/validation"
+                    ]
+                })
+            else:
+                return json.dumps({
+                    "all_selected_feature_paths": [
+                        "core/patterns/observer",
+                        "utils/io/file_handler"
+                    ]
+                })
             
         # Missing features
         elif "missing_features" in prompt:
-            return json.dumps({
-                "missing_features": {
-                    "ml": {
-                        "optimization": ["gradient_descent", "adam_optimizer"],
-                        "utilities": ["data_splitter", "cross_validator"]
+            if "logic" in prompt.lower():
+                return json.dumps({
+                    "missing_features": {
+                        "logic": {
+                            "inference": ["forward_chaining", "backward_chaining"],
+                            "representation": ["predicate_logic", "first_order_logic"]
+                        }
                     }
-                }
-            })
+                })
+            else:
+                return json.dumps({
+                    "missing_features": {
+                        "ml": {
+                            "optimization": ["gradient_descent", "adam_optimizer"],
+                            "utilities": ["data_splitter", "cross_validator"]
+                        }
+                    }
+                })
             
         # Folder skeleton
         elif "folders" in prompt and "maps" in prompt:
             return json.dumps({
                 "folders": [
-                    {"name": "src/algorithms", "maps": ["ML Algorithms"]},
+                    {"name": "src/algorithms", "maps": ["Core Algorithms"]},
                     {"name": "src/data", "maps": ["Data Processing"]},
-                    {"name": "src/evaluation", "maps": ["Model Evaluation"]},
+                    {"name": "src/logic", "maps": ["Logic Components"]},
                     {"name": "tests", "maps": ["Unit Tests"]}
                 ],
                 "files": []
@@ -242,10 +285,9 @@ class EmergentLLMClient:
         # File assignment
         elif ".py" in prompt and "Group" in prompt:
             return json.dumps({
-                "src/algorithms/regression.py": ["ml/algorithms/regression/linear"],
-                "src/algorithms/classification.py": ["ml/algorithms/classification/logistic"],
-                "src/data/preprocessing.py": ["ml/preprocessing/scaling"],
-                "src/evaluation/metrics.py": ["ml/evaluation/metrics"]
+                "src/algorithms/core.py": ["core/algorithms/sorting"],
+                "src/logic/solver.py": ["logic/problem_solving/constraint_satisfaction"],
+                "src/utils/helpers.py": ["utils/helpers/validation"]
             })
             
         # Default JSON response
