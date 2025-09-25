@@ -97,19 +97,14 @@ class ProposalController:
         logger.info(f"Exploit prompt (first 200 chars): {exploit_prompt[:200]}")
         
         try:
-            response = await self.llm_client.generate(
+            response_json = await self.llm_client.generate_json(
                 prompt=exploit_prompt,
                 temperature=0.1,  # Low temperature for deterministic selection
                 max_tokens=1000
             )
             
-            if not response.success:
-                logger.error(f"LLM generation failed: {response.error}")
-                return []
-            
-            logger.info(f"Exploit response: {response.content[:200]}...")
-            selected_paths = self._parse_feature_response(response.content, "exploit")
-            logger.info(f"Parsed exploit paths: {len(selected_paths)}")
+            paths = response_json.get("all_selected_feature_paths", [])
+            selected_paths = [FeaturePath(path=path, score=0.8, source="exploit") for path in paths]
             
             # Score based on retrieval relevance
             for path in selected_paths:
@@ -117,6 +112,7 @@ class ProposalController:
                 if matching_feature:
                     path.score = matching_feature.score
                     
+            logger.info(f"Exploit phase generated {len(selected_paths)} features")
             return selected_paths
             
         except Exception as e:
