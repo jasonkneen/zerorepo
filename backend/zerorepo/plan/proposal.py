@@ -101,7 +101,11 @@ class ProposalController:
                 max_tokens=1000
             )
             
-            selected_paths = self._parse_feature_response(response, "exploit")
+            if not response.success:
+                logger.error(f"LLM generation failed: {response.error}")
+                return []
+            
+            selected_paths = self._parse_feature_response(response.content, "exploit")
             
             # Score based on retrieval relevance
             for path in selected_paths:
