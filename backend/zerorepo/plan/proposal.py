@@ -145,7 +145,11 @@ class ProposalController:
                 max_tokens=800
             )
             
-            selected_paths = self._parse_feature_response(response, "explore")
+            if not response.success:
+                logger.error(f"LLM generation failed: {response.error}")
+                return []
+            
+            selected_paths = self._parse_feature_response(response.content, "explore")
             return selected_paths
             
         except Exception as e:
