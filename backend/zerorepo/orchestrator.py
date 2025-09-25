@@ -91,11 +91,12 @@ class ZeroRepoOrchestrator:
         Returns:
             Tuple of (capability_graph, feature_paths)
         """
-        logger.info("Initializing vector store with sample ontology")
         
-        # Initialize vector store with domain ontology
-        sample_ontology = self.vector_store.create_sample_ontology()
-        self.vector_store.build_from_ontology(sample_ontology)
+        # Initialize vector store with domain ontology if not already done
+        if len(self.vector_store.feature_paths) == 0:
+            logger.info("Initializing vector store with sample ontology")
+            sample_ontology = self.vector_store.create_sample_ontology()
+            self.vector_store.build_from_ontology(sample_ontology)
         
         logger.info(f"Vector store ready with {len(self.vector_store.feature_paths)} features")
         
