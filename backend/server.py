@@ -62,6 +62,9 @@ class GenerationJob(BaseModel):
     domain: str
     progress: int = Field(0, description="Progress percentage 0-100")
     current_stage: str = Field("Initializing", description="Current processing stage")
+    current_file: Optional[str] = Field(None, description="Currently processing file")
+    generated_files: List[str] = Field(default_factory=list, description="List of generated files")
+    files_in_progress: List[str] = Field(default_factory=list, description="Files currently being worked on")
     result: Optional[dict] = None
     error: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
