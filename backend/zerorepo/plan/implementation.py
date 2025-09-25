@@ -148,7 +148,11 @@ class ImplementationController:
                 max_tokens=1000
             )
             
-            assignment_data = json.loads(response.strip())
+            if not response.success:
+                logger.error(f"LLM generation failed: {response.error}")
+                return self._create_fallback_assignment(leaf_capabilities, skeleton)
+            
+            assignment_data = json.loads(response.content.strip())
             return assignment_data
             
         except Exception as e:
