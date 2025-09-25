@@ -211,19 +211,20 @@ async def list_generation_jobs(limit: int = 20, skip: int = 0):
 async def quick_demo():
     """
     Quick demo endpoint to test ZeroRepo system with a simple ML example.
+    Optimized for speed with minimal iterations.
     """
     try:
-        # Use a simple, fast example
+        # Use a simple, fast example with minimal iterations
         demo_goal = "Generate a basic linear regression class with fit and predict methods"
         
-        logging.info("Starting ZeroRepo quick demo")
+        logging.info("Starting ZeroRepo quick demo (optimized)")
         
-        # Run minimal generation
+        # Run minimal generation with faster model
         config = ProjectConfig(
             project_goal=demo_goal,
             domain="ml", 
-            max_iterations=5,  # Reduced for speed
-            llm_model="gpt-4"
+            max_iterations=1,  # Reduced from 5 to 1 for speed
+            llm_model="gpt-4o-mini"  # Faster model
         )
         
         # For demo, just run planning stage
@@ -242,7 +243,8 @@ async def quick_demo():
             "features_generated": len(feature_paths),
             "nodes_in_graph": len(capability_graph.nodes),
             "sample_features": [fp.path for fp in feature_paths[:5]],
-            "message": "Demo completed successfully - ZeroRepo system is working!"
+            "message": "Demo completed successfully - ZeroRepo system with real AI is working!",
+            "optimization": "Using GPT-4o-mini with 1 iteration for speed"
         }
         
     except Exception as e:
