@@ -544,11 +544,11 @@ const GenerationPage = ({ isDarkMode, setIsDarkMode }) => {
                     ${isDarkMode ? "focus:ring-offset-zinc-900" : "focus:ring-offset-white"}
                   `}
                 >
-                  <option value="emergent">Emergent (Unified)</option>
                   <option value="openai">OpenAI</option>
                   <option value="anthropic">Anthropic</option>
                   <option value="google">Google/Gemini</option>
                   <option value="openrouter">OpenRouter</option>
+                  <option value="github">GitHub Models</option>
                 </select>
               </div>
             </div>
