@@ -127,16 +127,23 @@ async def generate_repository_endpoint(
 async def plan_repository_endpoint(request: PlanRepositoryRequest):
     """
     Plan a repository (Stage A only) - returns RPG and feature paths.
+    Optimized for real LLM performance.
     """
     try:
         logging.info(f"Planning repository: {request.project_goal}")
+        
+        # Use faster model and fewer iterations for better UX
+        actual_model = "gpt-4o-mini" if request.llm_model == "gpt-4" else request.llm_model
+        actual_iterations = min(request.max_iterations, 3)  # Cap at 3 for speed
+        
+        logging.info(f"Using model {actual_model} with {actual_iterations} iterations for speed")
         
         # Run planning
         capability_graph, feature_paths = await plan_repository(
             project_goal=request.project_goal,
             domain=request.domain,
-            llm_model=request.llm_model,
-            max_iterations=request.max_iterations,
+            llm_model=actual_model,
+            max_iterations=actual_iterations,
             emergent_api_key=os.environ.get('EMERGENT_LLM_KEY', 'sk-emergent-b99311bB564934e547')
         )
         
@@ -148,6 +155,11 @@ async def plan_repository_endpoint(request: PlanRepositoryRequest):
                 "total_features": len(feature_paths),
                 "total_nodes": len(capability_graph.nodes),
                 "total_edges": len(capability_graph.edges)
+            },
+            "optimization_info": {
+                "model_used": actual_model,
+                "iterations_used": actual_iterations,
+                "original_iterations": request.max_iterations
             }
         }
         
