@@ -136,78 +136,129 @@ const ZeroRepoInterface = () => {
     }
   };
 
+  const themeClasses = {
+    bg: isDarkMode ? "bg-zinc-900" : "bg-white",
+    cardBg: isDarkMode ? "bg-zinc-800" : "bg-white",
+    cardBorder: isDarkMode ? "border-zinc-700" : "border-gray-200",
+    text: isDarkMode ? "text-white" : "text-black",
+    textSecondary: isDarkMode ? "text-zinc-400" : "text-gray-600",
+    textMuted: isDarkMode ? "text-zinc-500" : "text-gray-500",
+    input: isDarkMode ? "bg-zinc-800 border-zinc-600 text-white placeholder-zinc-400" : "bg-white border-gray-300 text-black placeholder-gray-400",
+    inputFocus: isDarkMode ? "focus:border-zinc-400 focus:ring-zinc-400" : "focus:border-black focus:ring-black",
+    buttonPrimary: isDarkMode ? "bg-white text-black hover:bg-zinc-200" : "bg-black text-white hover:bg-gray-800",
+    buttonSecondary: isDarkMode ? "bg-zinc-700 text-white hover:bg-zinc-600 border-zinc-600" : "bg-white text-gray-700 hover:bg-gray-50 border-gray-300",
+    headerBorder: isDarkMode ? "border-zinc-800" : "border-gray-200",
+    successText: isDarkMode ? "text-emerald-400" : "text-emerald-600",
+    errorText: isDarkMode ? "text-red-400" : "text-red-600",
+    errorBg: isDarkMode ? "bg-red-900/20 border-red-800" : "bg-red-50 border-red-200"
+  };
+
   return (
-    <div className="min-h-screen bg-white text-black">
+    <div className={`min-h-screen ${themeClasses.bg} ${themeClasses.text} transition-colors duration-300`}>
       {/* Header */}
-      <div className="border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-4 py-6">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold tracking-tight text-black mb-2">
-              ZeroRepo
-            </h1>
-            <p className="text-lg text-gray-600 mb-1">Graph-Driven Repository Generation</p>
-            <p className="text-sm text-gray-500">
-              AI-powered system that plans, designs, and generates complete software repositories
-            </p>
+      <div className={`border-b ${themeClasses.headerBorder}`}>
+        <div className="max-w-6xl mx-auto px-6 py-8">
+          <div className="flex items-center justify-between">
+            <div className="text-center flex-1">
+              <h1 className="text-5xl font-bold tracking-tight mb-3">
+                ZeroRepo
+              </h1>
+              <p className="text-xl font-medium mb-2">Graph-Driven Repository Generation</p>
+              <p className={`text-sm ${themeClasses.textMuted}`}>
+                AI-powered system that plans, designs, and generates complete software repositories
+              </p>
+            </div>
+            
+            {/* Dark Mode Toggle */}
+            <button
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              className={`rounded-full p-3 transition-all duration-300 shadow-lg ${
+                isDarkMode 
+                  ? "bg-zinc-800 hover:bg-zinc-700 border border-zinc-600" 
+                  : "bg-gray-100 hover:bg-gray-200 border border-gray-300"
+              }`}
+            >
+              {isDarkMode ? (
+                <svg className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                </svg>
+              )}
+            </button>
           </div>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-5xl mx-auto px-6 py-10">
         
         {/* Quick Demo Section */}
-        <div className="mb-12">
-          <div className="border border-gray-200 rounded-lg p-6 bg-gray-50">
-            <h2 className="text-xl font-semibold text-black mb-3">Quick Demo</h2>
-            <p className="text-gray-600 mb-4">
+        <div className="mb-16">
+          <div className={`${themeClasses.cardBg} ${themeClasses.cardBorder} border rounded-3xl p-8 shadow-2xl`}>
+            <h2 className="text-2xl font-bold mb-4">Quick Demo</h2>
+            <p className={`${themeClasses.textSecondary} mb-6 text-lg`}>
               Test the ZeroRepo system with a machine learning example
             </p>
             
             <button
               onClick={handleQuickDemo}
               disabled={isGenerating}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 transition-colors"
+              className={`
+                ${themeClasses.buttonPrimary}
+                inline-flex items-center px-8 py-4 rounded-full text-lg font-semibold
+                shadow-2xl transition-all duration-300 transform hover:scale-105 
+                disabled:opacity-50 disabled:transform-none disabled:cursor-not-allowed
+              `}
             >
               {isGenerating ? (
                 <>
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Running Real AI Demo...
+                  Running AI Demo...
                 </>
-              ) : "Run Quick Demo"}
+              ) : "🚀 Run Quick Demo"}
             </button>
 
             {demoResult && (
-              <div className="mt-4 p-4 border border-gray-200 rounded-lg bg-white">
-                <h3 className="font-semibold text-black mb-3">Demo Results</h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-center justify-between py-1">
-                    <span className="text-gray-600">Status</span>
-                    <span className={`font-medium ${demoResult.success ? 'text-green-600' : 'text-red-600'}`}>
-                      {demoResult.success ? "Success" : "Failed"}
-                    </span>
+              <div className={`mt-6 p-6 ${themeClasses.cardBg} ${themeClasses.cardBorder} border rounded-2xl shadow-xl`}>
+                <h3 className="text-xl font-bold mb-4">Demo Results</h3>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className={`text-center p-4 ${themeClasses.cardBg} ${themeClasses.cardBorder} border rounded-2xl shadow-lg`}>
+                      <div className={`text-2xl font-bold ${demoResult.success ? themeClasses.successText : themeClasses.errorText}`}>
+                        {demoResult.success ? "✓" : "✗"}
+                      </div>
+                      <div className={`text-sm ${themeClasses.textSecondary}`}>Status</div>
+                    </div>
+                    <div className={`text-center p-4 ${themeClasses.cardBg} ${themeClasses.cardBorder} border rounded-2xl shadow-lg`}>
+                      <div className="text-2xl font-bold">{demoResult.features_generated}</div>
+                      <div className={`text-sm ${themeClasses.textSecondary}`}>Features</div>
+                    </div>
+                    <div className={`text-center p-4 ${themeClasses.cardBg} ${themeClasses.cardBorder} border rounded-2xl shadow-lg`}>
+                      <div className="text-2xl font-bold">{demoResult.nodes_in_graph}</div>
+                      <div className={`text-sm ${themeClasses.textSecondary}`}>Nodes</div>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between py-1">
-                    <span className="text-gray-600">Features Generated</span>
-                    <span className="font-mono text-black">{demoResult.features_generated}</span>
-                  </div>
-                  <div className="flex items-center justify-between py-1">
-                    <span className="text-gray-600">Graph Nodes</span>
-                    <span className="font-mono text-black">{demoResult.nodes_in_graph}</span>
-                  </div>
+                  
                   {demoResult.sample_features && demoResult.sample_features.length > 0 && (
-                    <div className="mt-3">
-                      <p className="text-gray-600 mb-2">Sample Features:</p>
-                      <div className="bg-gray-50 p-3 rounded border text-xs font-mono space-y-1">
-                        {demoResult.sample_features.slice(0, 5).map((feature, idx) => (
-                          <div key={idx} className="text-gray-800">{feature}</div>
+                    <div>
+                      <h4 className="font-semibold mb-3">Sample Features</h4>
+                      <div className={`${themeClasses.cardBg} ${themeClasses.cardBorder} border p-4 rounded-2xl text-sm font-mono space-y-2 max-h-48 overflow-y-auto shadow-inner`}>
+                        {demoResult.sample_features.slice(0, 6).map((feature, idx) => (
+                          <div key={idx} className={`${themeClasses.textSecondary} py-1`}>
+                            {feature}
+                          </div>
                         ))}
                       </div>
                     </div>
                   )}
-                  <p className="mt-3 text-sm text-gray-700 font-medium">{demoResult.message}</p>
+                  <p className={`text-sm font-medium ${themeClasses.successText}`}>
+                    {demoResult.message}
+                  </p>
                 </div>
               </div>
             )}
@@ -215,31 +266,39 @@ const ZeroRepoInterface = () => {
         </div>
 
         {/* Main Interface */}
-        <div className="border border-gray-200 rounded-lg p-6 bg-white">
-          <h2 className="text-2xl font-semibold text-black mb-6">Generate Repository</h2>
+        <div className={`${themeClasses.cardBg} ${themeClasses.cardBorder} border rounded-3xl p-8 shadow-2xl`}>
+          <h2 className="text-3xl font-bold mb-8">Generate Repository</h2>
           
-          <div className="space-y-6">
+          <div className="space-y-8">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-semibold ${themeClasses.text} mb-3`}>
                 Project Goal
               </label>
               <textarea
                 value={projectGoal}
                 onChange={(e) => setProjectGoal(e.target.value)}
                 placeholder="e.g., Generate a machine learning toolkit with regression, classification, and clustering algorithms"
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-black focus:border-transparent text-black placeholder-gray-400 bg-white"
-                rows={3}
+                className={`
+                  w-full p-4 border rounded-2xl resize-none shadow-lg transition-all duration-300
+                  ${themeClasses.input} ${themeClasses.inputFocus} focus:ring-2 focus:ring-offset-2
+                  ${isDarkMode ? "focus:ring-offset-zinc-900" : "focus:ring-offset-white"}
+                `}
+                rows={4}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-semibold ${themeClasses.text} mb-3`}>
                 Domain
               </label>
               <select
                 value={domain}
                 onChange={(e) => setDomain(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-black focus:border-transparent text-black bg-white"
+                className={`
+                  w-full p-4 border rounded-2xl shadow-lg transition-all duration-300
+                  ${themeClasses.input} ${themeClasses.inputFocus} focus:ring-2 focus:ring-offset-2
+                  ${isDarkMode ? "focus:ring-offset-zinc-900" : "focus:ring-offset-white"}
+                `}
               >
                 <option value="ml">Machine Learning</option>
                 <option value="web">Web Development</option>
@@ -248,43 +307,53 @@ const ZeroRepoInterface = () => {
               </select>
             </div>
 
-            <div className="flex space-x-3">
+            <div className="flex space-x-4">
               <button
                 onClick={handlePlanRepository}
                 disabled={isPlanning || isGenerating}
-                className="flex-1 inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 transition-colors"
+                className={`
+                  flex-1 inline-flex items-center justify-center px-8 py-4 rounded-full text-lg font-semibold
+                  shadow-2xl transition-all duration-300 transform hover:scale-105
+                  disabled:opacity-50 disabled:transform-none disabled:cursor-not-allowed
+                  ${themeClasses.buttonSecondary}
+                `}
               >
                 {isPlanning ? (
                   <>
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
                     Planning with AI...
                   </>
-                ) : "Plan Repository"}
+                ) : "📋 Plan Repository"}
               </button>
               
               <button
                 onClick={handleGenerateRepository}
                 disabled={isGenerating || isPlanning}
-                className="flex-1 inline-flex items-center justify-center px-4 py-2 bg-black text-white rounded-md text-sm font-medium hover:bg-gray-800 disabled:bg-gray-300 disabled:text-gray-500 transition-colors"
+                className={`
+                  flex-1 inline-flex items-center justify-center px-8 py-4 rounded-full text-lg font-semibold
+                  shadow-2xl transition-all duration-300 transform hover:scale-105
+                  disabled:opacity-50 disabled:transform-none disabled:cursor-not-allowed
+                  ${themeClasses.buttonPrimary}
+                `}
               >
                 {isGenerating ? (
                   <>
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
                     Generating...
                   </>
-                ) : "Generate Repository"}
+                ) : "🏗️ Generate Repository"}
               </button>
             </div>
 
             {/* Performance notice */}
-            <div className="p-3 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-600">
-              <span className="font-medium">AI Integration:</span> Planning uses GPT-4o-mini for intelligent feature generation. 
+            <div className={`p-4 ${themeClasses.cardBg} ${themeClasses.cardBorder} border rounded-2xl text-sm ${themeClasses.textSecondary} shadow-lg`}>
+              <span className="font-semibold">AI Integration:</span> Planning uses GPT-4o-mini for intelligent feature generation. 
               This takes 30-60 seconds for quality results.
             </div>
           </div>
