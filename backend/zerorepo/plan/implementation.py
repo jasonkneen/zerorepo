@@ -238,7 +238,11 @@ Output: Complete code with base class definitions."""
                     max_tokens=1500
                 )
                 
-                interfaces[file_node.path_hint] = response.strip()
+                if not response.success:
+                    logger.error(f"LLM generation failed: {response.error}")
+                    continue
+                
+                interfaces[file_node.path_hint] = response.content.strip()
                 logger.debug(f"Generated interface for {file_node.path_hint}")
                 
             except Exception as e:
