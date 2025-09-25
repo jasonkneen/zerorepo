@@ -362,25 +362,49 @@ const ZeroRepoInterface = () => {
               </div>
             )}
             
-            {result.type === 'generate' && (
+            {result.type === 'generate' && !jobProgress && (
               <div className="space-y-3">
                 <p className="text-gray-300">
                   <strong>Job ID:</strong> <span className="font-mono text-blue-300">{result.jobId}</span>
                 </p>
                 <p className="text-gray-300">
-                  Repository generation has started. This process may take several minutes as the system:
+                  Repository generation has started. This process involves:
                 </p>
                 <ul className="list-disc list-inside text-sm text-gray-300 ml-4 space-y-1">
-                  <li>Plans the repository structure using explore/exploit/missing feature strategy</li>
-                  <li>Designs file architecture and interfaces</li>
-                  <li>Generates code with topological traversal and test-driven development</li>
-                  <li>Validates generated code with automated testing</li>
+                  <li>Stage A: AI plans repository structure using explore/exploit/missing features</li>
+                  <li>Stage B: Designs file architecture and interfaces</li>
+                  <li>Stage C: Generates actual code with test-driven development</li>
                 </ul>
-                <div className="mt-4 p-3 bg-yellow-900 border border-yellow-600 rounded">
-                  <p className="text-yellow-300 text-sm">
-                    💡 <strong>Note:</strong> Use the job ID to check progress via the API: <code>/api/zerorepo/jobs/{result.jobId}</code>
-                  </p>
+              </div>
+            )}
+            
+            {result.type === 'generate_complete' && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center p-3 bg-slate-700 rounded">
+                    <div className="text-2xl font-bold text-green-400">
+                      {result.data.result?.generated_files?.length || 0}
+                    </div>
+                    <div className="text-gray-300">Files Generated</div>
+                  </div>
+                  <div className="text-center p-3 bg-slate-700 rounded">
+                    <div className="text-2xl font-bold text-blue-400">
+                      {Math.round((result.data.result?.metrics?.success_rate || 0) * 100)}%
+                    </div>
+                    <div className="text-gray-300">Success Rate</div>
+                  </div>
                 </div>
+                
+                {result.data.result?.generated_files?.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold text-green-300 mb-2">Generated Files:</h4>
+                    <div className="bg-slate-700 p-3 rounded text-xs font-mono max-h-32 overflow-y-auto">
+                      {result.data.result.generated_files.map((file, idx) => (
+                        <div key={idx} className="text-green-300">{file}</div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
