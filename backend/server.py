@@ -421,6 +421,11 @@ async def health_check():
         "version": "1.0.0"
     }
 
+@api_router.get("/test-models")
+async def test_models():
+    """Simple test endpoint."""
+    return {"test": "models endpoint working"}
+
 @api_router.get("/models")
 async def get_available_models():
     """Get available models for each provider."""
