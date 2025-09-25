@@ -67,7 +67,7 @@ class FeaturePath(BaseModel):
     
     path: str = Field(..., description="Hierarchical feature path like 'ml/evaluation/metrics/silhouette_score'")
     score: float = Field(0.0, description="Relevance score for this feature")
-    source: Literal["exploit", "explore", "missing"] = Field(..., description="Source of feature selection")
+    source: Literal["exploit", "explore", "missing", "ontology"] = Field(..., description="Source of feature selection")
     
     class Config:
         json_schema_extra = {
