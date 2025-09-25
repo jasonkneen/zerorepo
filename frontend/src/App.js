@@ -154,80 +154,92 @@ const ZeroRepoInterface = () => {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-8">
-
+        
         {/* Quick Demo Section */}
-        <div className="bg-slate-800 rounded-lg p-6 mb-8 border border-slate-700">
-          <h2 className="text-2xl font-semibold mb-4 text-blue-400">Quick Demo</h2>
-          <p className="text-gray-300 mb-4">
-            Test the ZeroRepo system with a simple machine learning example
-          </p>
-          
-          <button
-            onClick={handleQuickDemo}
-            disabled={isGenerating}
-            className="bg-green-600 hover:bg-green-700 disabled:bg-gray-600 px-6 py-3 rounded-lg font-medium transition-colors"
-          >
-            {isGenerating ? (
-              <span className="flex items-center">
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Running Real AI Demo...
-              </span>
-            ) : "🚀 Run Quick Demo (Fast)"}
-          </button>
+        <div className="mb-12">
+          <div className="border border-gray-200 rounded-lg p-6 bg-gray-50">
+            <h2 className="text-xl font-semibold text-black mb-3">Quick Demo</h2>
+            <p className="text-gray-600 mb-4">
+              Test the ZeroRepo system with a machine learning example
+            </p>
+            
+            <button
+              onClick={handleQuickDemo}
+              disabled={isGenerating}
+              className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 transition-colors"
+            >
+              {isGenerating ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Running Real AI Demo...
+                </>
+              ) : "Run Quick Demo"}
+            </button>
 
-          {demoResult && (
-            <div className="mt-4 p-4 bg-slate-700 rounded-lg border border-green-500">
-              <h3 className="font-semibold text-green-400 mb-2">Demo Results:</h3>
-              <div className="text-sm text-gray-300 space-y-1">
-                <p><strong>Status:</strong> {demoResult.success ? "✅ Success" : "❌ Failed"}</p>
-                <p><strong>Goal:</strong> {demoResult.demo_goal}</p>
-                <p><strong>Features Generated:</strong> {demoResult.features_generated}</p>
-                <p><strong>Graph Nodes:</strong> {demoResult.nodes_in_graph}</p>
-                {demoResult.sample_features && (
-                  <div>
-                    <p><strong>Sample Features:</strong></p>
-                    <ul className="ml-4 list-disc">
-                      {demoResult.sample_features.map((feature, idx) => (
-                        <li key={idx} className="text-blue-300">{feature}</li>
-                      ))}
-                    </ul>
+            {demoResult && (
+              <div className="mt-4 p-4 border border-gray-200 rounded-lg bg-white">
+                <h3 className="font-semibold text-black mb-3">Demo Results</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-gray-600">Status</span>
+                    <span className={`font-medium ${demoResult.success ? 'text-green-600' : 'text-red-600'}`}>
+                      {demoResult.success ? "Success" : "Failed"}
+                    </span>
                   </div>
-                )}
-                <p className="text-green-400 font-medium">{demoResult.message}</p>
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-gray-600">Features Generated</span>
+                    <span className="font-mono text-black">{demoResult.features_generated}</span>
+                  </div>
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-gray-600">Graph Nodes</span>
+                    <span className="font-mono text-black">{demoResult.nodes_in_graph}</span>
+                  </div>
+                  {demoResult.sample_features && demoResult.sample_features.length > 0 && (
+                    <div className="mt-3">
+                      <p className="text-gray-600 mb-2">Sample Features:</p>
+                      <div className="bg-gray-50 p-3 rounded border text-xs font-mono space-y-1">
+                        {demoResult.sample_features.slice(0, 5).map((feature, idx) => (
+                          <div key={idx} className="text-gray-800">{feature}</div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  <p className="mt-3 text-sm text-gray-700 font-medium">{demoResult.message}</p>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Main Interface */}
-        <div className="bg-slate-800 rounded-lg p-8 border border-slate-700">
-          <h2 className="text-3xl font-semibold mb-6 text-purple-400">Generate Repository</h2>
+        <div className="border border-gray-200 rounded-lg p-6 bg-white">
+          <h2 className="text-2xl font-semibold text-black mb-6">Generate Repository</h2>
           
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Project Goal
               </label>
               <textarea
                 value={projectGoal}
                 onChange={(e) => setProjectGoal(e.target.value)}
                 placeholder="e.g., Generate a machine learning toolkit with regression, classification, and clustering algorithms"
-                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg focus:border-purple-500 focus:outline-none text-white"
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-black focus:border-transparent text-black placeholder-gray-400 bg-white"
                 rows={3}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Domain
               </label>
               <select
                 value={domain}
                 onChange={(e) => setDomain(e.target.value)}
-                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg focus:border-purple-500 focus:outline-none text-white"
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-black focus:border-transparent text-black bg-white"
               >
                 <option value="ml">Machine Learning</option>
                 <option value="web">Web Development</option>
@@ -236,81 +248,81 @@ const ZeroRepoInterface = () => {
               </select>
             </div>
 
-            <div className="flex space-x-4">
+            <div className="flex space-x-3">
               <button
                 onClick={handlePlanRepository}
                 disabled={isPlanning || isGenerating}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 px-6 py-3 rounded-lg font-medium transition-colors"
+                className="flex-1 inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 transition-colors"
               >
                 {isPlanning ? (
-                  <span className="flex items-center justify-center">
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <>
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
                     Planning with AI...
-                  </span>
-                ) : "📋 Plan Repository"}
+                  </>
+                ) : "Plan Repository"}
               </button>
               
               <button
                 onClick={handleGenerateRepository}
                 disabled={isGenerating || isPlanning}
-                className="flex-1 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 px-6 py-3 rounded-lg font-medium transition-colors"
+                className="flex-1 inline-flex items-center justify-center px-4 py-2 bg-black text-white rounded-md text-sm font-medium hover:bg-gray-800 disabled:bg-gray-300 disabled:text-gray-500 transition-colors"
               >
                 {isGenerating ? (
-                  <span className="flex items-center justify-center">
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <>
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
                     Generating...
-                  </span>
-                ) : "🏗️ Generate Repository"}
+                  </>
+                ) : "Generate Repository"}
               </button>
             </div>
 
-            {/* Speed optimization notice */}
-            <div className="mt-4 p-3 bg-blue-900 border border-blue-600 rounded text-sm text-blue-200">
-              💡 <strong>Real AI Integration:</strong> Planning now uses actual GPT-4o-mini for intelligent feature generation. 
-              This takes 30-60 seconds for quality results vs instant mock responses.
+            {/* Performance notice */}
+            <div className="p-3 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-600">
+              <span className="font-medium">AI Integration:</span> Planning uses GPT-4o-mini for intelligent feature generation. 
+              This takes 30-60 seconds for quality results.
             </div>
           </div>
         </div>
 
         {/* Live Job Progress */}
         {jobProgress && jobProgress.status === "running" && (
-          <div className="mt-6 p-6 bg-slate-800 border border-yellow-600 rounded-lg">
-            <h3 className="font-semibold text-yellow-400 mb-4">
-              🔄 Live Generation Progress
+          <div className="mt-8 border border-gray-200 rounded-lg p-6 bg-white">
+            <h3 className="text-lg font-semibold text-black mb-4">
+              Generation Progress
             </h3>
             
             <div className="space-y-4">
               {/* Progress Bar */}
-              <div className="w-full bg-gray-700 rounded-full h-3">
+              <div className="w-full bg-gray-200 rounded-full h-2">
                 <div 
-                  className="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-500"
+                  className="bg-black h-2 rounded-full transition-all duration-500"
                   style={{ width: `${jobProgress.progress}%` }}
                 ></div>
               </div>
               
               {/* Progress Details */}
               <div className="flex justify-between text-sm">
-                <span className="text-gray-300">{jobProgress.progress}% Complete</span>
-                <span className="text-blue-300">{jobProgress.current_stage}</span>
+                <span className="text-gray-900 font-medium">{jobProgress.progress}% Complete</span>
+                <span className="text-gray-600">{jobProgress.current_stage}</span>
               </div>
               
               {/* Stage Information */}
-              <div className="bg-slate-700 p-3 rounded text-sm">
+              <div className="bg-gray-50 border border-gray-200 p-4 rounded-md">
                 <div className="flex items-center space-x-2 mb-2">
-                  <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
-                  <span className="text-yellow-300 font-medium">Currently Processing:</span>
+                  <div className="w-2 h-2 bg-black rounded-full animate-pulse"></div>
+                  <span className="text-black font-medium">Currently Processing:</span>
                 </div>
-                <p className="text-gray-300 ml-4">{jobProgress.current_stage}</p>
+                <p className="text-gray-700 ml-4">{jobProgress.current_stage}</p>
               </div>
               
               {/* Expected Timeline */}
-              <div className="text-xs text-gray-400">
+              <div className="text-xs text-gray-500 space-y-1">
                 <p>⏱️ AI-powered generation typically takes 2-5 minutes for quality results</p>
                 <p>🧠 The system is making real LLM calls for intelligent feature planning</p>
               </div>
@@ -318,95 +330,111 @@ const ZeroRepoInterface = () => {
           </div>
         )}
 
-        {/* Results Section */}
+        {/* Error Display */}
         {error && (
-          <div className="mt-6 p-4 bg-red-900 border border-red-600 rounded-lg">
-            <h3 className="font-semibold text-red-400 mb-2">Error:</h3>
-            <p className="text-red-300">{error}</p>
+          <div className="mt-8 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <h3 className="font-semibold text-red-800 mb-2">Error</h3>
+            <p className="text-red-700">{error}</p>
           </div>
         )}
 
+        {/* Results Section */}
         {result && (
-          <div className="mt-6 p-6 bg-slate-800 border border-green-600 rounded-lg">
-            <h3 className="font-semibold text-green-400 mb-4">
+          <div className="mt-8 border border-gray-200 rounded-lg p-6 bg-white">
+            <h3 className="text-lg font-semibold text-black mb-4">
               {result.type === 'plan' ? 'Planning Results' : 'Generation Started'}
             </h3>
             
             {result.type === 'plan' && (
-              <div className="space-y-3 text-sm">
+              <div className="space-y-4">
                 <div className="grid grid-cols-3 gap-4">
-                  <div className="text-center p-3 bg-slate-700 rounded">
-                    <div className="text-2xl font-bold text-blue-400">
+                  <div className="text-center p-4 bg-gray-50 border border-gray-200 rounded-md">
+                    <div className="text-2xl font-bold text-black">
                       {result.data.metrics.total_features}
                     </div>
-                    <div className="text-gray-300">Features</div>
+                    <div className="text-sm text-gray-600">Features</div>
                   </div>
-                  <div className="text-center p-3 bg-slate-700 rounded">
-                    <div className="text-2xl font-bold text-purple-400">
+                  <div className="text-center p-4 bg-gray-50 border border-gray-200 rounded-md">
+                    <div className="text-2xl font-bold text-black">
                       {result.data.metrics.total_nodes}
                     </div>
-                    <div className="text-gray-300">Graph Nodes</div>
+                    <div className="text-sm text-gray-600">Graph Nodes</div>
                   </div>
-                  <div className="text-center p-3 bg-slate-700 rounded">
-                    <div className="text-2xl font-bold text-green-400">
+                  <div className="text-center p-4 bg-gray-50 border border-gray-200 rounded-md">
+                    <div className="text-2xl font-bold text-black">
                       {result.data.metrics.total_edges}
                     </div>
-                    <div className="text-gray-300">Connections</div>
+                    <div className="text-sm text-gray-600">Connections</div>
                   </div>
                 </div>
                 
-                <div>
-                  <h4 className="font-semibold text-blue-300 mb-2">Sample Feature Paths:</h4>
-                  <div className="bg-slate-700 p-3 rounded text-xs font-mono">
-                    {result.data.feature_paths.slice(0, 8).map((fp, idx) => (
-                      <div key={idx} className="text-blue-300">
-                        {fp.path} <span className="text-gray-400">({fp.source})</span>
-                      </div>
-                    ))}
+                {result.data.feature_paths && result.data.feature_paths.length > 0 && (
+                  <div>
+                    <h4 className="font-medium text-black mb-3">Sample Feature Paths</h4>
+                    <div className="bg-gray-50 border border-gray-200 p-4 rounded-md text-xs font-mono max-h-48 overflow-y-auto">
+                      {result.data.feature_paths.slice(0, 12).map((fp, idx) => (
+                        <div key={idx} className="flex justify-between py-1">
+                          <span className="text-gray-900">{fp.path}</span>
+                          <span className="text-gray-500">({fp.source})</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             )}
             
             {result.type === 'generate' && !jobProgress && (
-              <div className="space-y-3">
-                <p className="text-gray-300">
-                  <strong>Job ID:</strong> <span className="font-mono text-blue-300">{result.jobId}</span>
-                </p>
-                <p className="text-gray-300">
-                  Repository generation has started. This process involves:
-                </p>
-                <ul className="list-disc list-inside text-sm text-gray-300 ml-4 space-y-1">
-                  <li>Stage A: AI plans repository structure using explore/exploit/missing features</li>
-                  <li>Stage B: Designs file architecture and interfaces</li>
-                  <li>Stage C: Generates actual code with test-driven development</li>
-                </ul>
+              <div className="space-y-4">
+                <div className="p-4 bg-gray-50 border border-gray-200 rounded-md">
+                  <p className="text-gray-700 mb-2">
+                    <span className="font-medium">Job ID:</span> 
+                    <span className="font-mono text-black ml-2">{result.jobId}</span>
+                  </p>
+                  <p className="text-gray-700 mb-3">
+                    Repository generation has started. This process involves:
+                  </p>
+                  <div className="space-y-2 text-sm text-gray-600">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-4 h-4 border border-gray-300 rounded flex items-center justify-center text-xs">A</div>
+                      <span>AI plans repository structure using explore/exploit/missing features</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-4 h-4 border border-gray-300 rounded flex items-center justify-center text-xs">B</div>
+                      <span>Designs file architecture and interfaces</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-4 h-4 border border-gray-300 rounded flex items-center justify-center text-xs">C</div>
+                      <span>Generates actual code with test-driven development</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
             
             {result.type === 'generate_complete' && (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-3 bg-slate-700 rounded">
-                    <div className="text-2xl font-bold text-green-400">
+                  <div className="text-center p-4 bg-gray-50 border border-gray-200 rounded-md">
+                    <div className="text-2xl font-bold text-black">
                       {result.data.result?.generated_files?.length || 0}
                     </div>
-                    <div className="text-gray-300">Files Generated</div>
+                    <div className="text-sm text-gray-600">Files Generated</div>
                   </div>
-                  <div className="text-center p-3 bg-slate-700 rounded">
-                    <div className="text-2xl font-bold text-blue-400">
+                  <div className="text-center p-4 bg-gray-50 border border-gray-200 rounded-md">
+                    <div className="text-2xl font-bold text-black">
                       {Math.round((result.data.result?.metrics?.success_rate || 0) * 100)}%
                     </div>
-                    <div className="text-gray-300">Success Rate</div>
+                    <div className="text-sm text-gray-600">Success Rate</div>
                   </div>
                 </div>
                 
                 {result.data.result?.generated_files?.length > 0 && (
                   <div>
-                    <h4 className="font-semibold text-green-300 mb-2">Generated Files:</h4>
-                    <div className="bg-slate-700 p-3 rounded text-xs font-mono max-h-32 overflow-y-auto">
+                    <h4 className="font-medium text-black mb-3">Generated Files</h4>
+                    <div className="bg-gray-50 border border-gray-200 p-4 rounded-md text-xs font-mono max-h-32 overflow-y-auto">
                       {result.data.result.generated_files.map((file, idx) => (
-                        <div key={idx} className="text-green-300">{file}</div>
+                        <div key={idx} className="text-gray-800 py-1">{file}</div>
                       ))}
                     </div>
                   </div>
@@ -416,25 +444,36 @@ const ZeroRepoInterface = () => {
           </div>
         )}
 
-        {/* System Info */}
-        <div className="mt-12 text-center text-gray-400 text-sm">
-          <div className="grid grid-cols-3 gap-4 mb-4">
-            <div className="p-3 bg-slate-800 rounded border border-slate-700">
-              <div className="font-semibold text-blue-400">Stage A</div>
-              <div>Proposal Construction</div>
-              <div className="text-xs">Explore/Exploit/Missing</div>
+        {/* Process Architecture */}
+        <div className="mt-12 border-t border-gray-200 pt-8">
+          <h3 className="text-lg font-medium text-black mb-6 text-center">Repository Generation Process</h3>
+          <div className="grid grid-cols-3 gap-6">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-gray-100 border-2 border-gray-300 rounded-lg flex items-center justify-center mx-auto mb-3">
+                <span className="text-lg font-bold text-gray-700">A</span>
+              </div>
+              <h4 className="font-medium text-black mb-1">Proposal Construction</h4>
+              <p className="text-sm text-gray-600">Explore/Exploit/Missing</p>
             </div>
-            <div className="p-3 bg-slate-800 rounded border border-slate-700">
-              <div className="font-semibold text-purple-400">Stage B</div>
-              <div>Implementation Design</div>
-              <div className="text-xs">Files/Interfaces/Data Flow</div>
+            <div className="text-center">
+              <div className="w-12 h-12 bg-gray-100 border-2 border-gray-300 rounded-lg flex items-center justify-center mx-auto mb-3">
+                <span className="text-lg font-bold text-gray-700">B</span>
+              </div>
+              <h4 className="font-medium text-black mb-1">Implementation Design</h4>
+              <p className="text-sm text-gray-600">Files/Interfaces/Data Flow</p>
             </div>
-            <div className="p-3 bg-slate-800 rounded border border-slate-700">
-              <div className="font-semibold text-green-400">Stage C</div>
-              <div>Code Generation</div>
-              <div className="text-xs">Topological TDD</div>
+            <div className="text-center">
+              <div className="w-12 h-12 bg-black rounded-lg flex items-center justify-center mx-auto mb-3">
+                <span className="text-lg font-bold text-white">C</span>
+              </div>
+              <h4 className="font-medium text-black mb-1">Code Generation</h4>
+              <p className="text-sm text-gray-600">Topological TDD</p>
             </div>
           </div>
+        </div>
+
+        {/* Footer */}
+        <div className="mt-12 text-center text-gray-500 text-sm border-t border-gray-200 pt-6">
           <p>ZeroRepo v1.0 - Graph-Driven Repository Generation System</p>
         </div>
       </div>
