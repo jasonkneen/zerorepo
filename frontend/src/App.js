@@ -1,10 +1,299 @@
-import { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import axios from "axios";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
+
+const ZeroRepoInterface = () => {
+  const [projectGoal, setProjectGoal] = useState("");
+  const [domain, setDomain] = useState("ml");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isPlanning, setIsPlanning] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
+  const [demoResult, setDemoResult] = useState(null);
+
+  const handleQuickDemo = async () => {
+    setIsGenerating(true);
+    setError(null);
+    setDemoResult(null);
+
+    try {
+      const response = await axios.post(`${API}/zerorepo/quick-demo`);
+      setDemoResult(response.data);
+    } catch (err) {
+      setError(err.response?.data?.detail || "Demo failed");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handlePlanRepository = async () => {
+    if (!projectGoal.trim()) {
+      setError("Please enter a project goal");
+      return;
+    }
+
+    setIsPlanning(true);
+    setError(null);
+    setResult(null);
+
+    try {
+      const response = await axios.post(`${API}/zerorepo/plan`, {
+        project_goal: projectGoal,
+        domain: domain,
+        llm_model: "gpt-4",
+        max_iterations: 15
+      });
+
+      setResult({
+        type: 'plan',
+        data: response.data
+      });
+    } catch (err) {
+      setError(err.response?.data?.detail || "Planning failed");
+    } finally {
+      setIsPlanning(false);
+    }
+  };
+
+  const handleGenerateRepository = async () => {
+    if (!projectGoal.trim()) {
+      setError("Please enter a project goal");
+      return;
+    }
+
+    setIsGenerating(true);
+    setError(null);
+    setResult(null);
+
+    try {
+      const response = await axios.post(`${API}/zerorepo/generate`, {
+        project_goal: projectGoal,
+        domain: domain,
+        llm_model: "gpt-4",
+        max_iterations: 20
+      });
+
+      setResult({
+        type: 'generate',
+        data: response.data,
+        jobId: response.data.job_id
+      });
+    } catch (err) {
+      setError(err.response?.data?.detail || "Generation failed");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white p-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-12">
+          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+            ZeroRepo
+          </h1>
+          <p className="text-xl text-gray-300 mb-2">Graph-Driven Repository Generation</p>
+          <p className="text-sm text-gray-400">
+            AI-powered system that plans, designs, and generates complete software repositories
+          </p>
+        </div>
+
+        {/* Quick Demo Section */}
+        <div className="bg-slate-800 rounded-lg p-6 mb-8 border border-slate-700">
+          <h2 className="text-2xl font-semibold mb-4 text-blue-400">Quick Demo</h2>
+          <p className="text-gray-300 mb-4">
+            Test the ZeroRepo system with a simple machine learning example
+          </p>
+          
+          <button
+            onClick={handleQuickDemo}
+            disabled={isGenerating}
+            className="bg-green-600 hover:bg-green-700 disabled:bg-gray-600 px-6 py-3 rounded-lg font-medium transition-colors"
+          >
+            {isGenerating ? "Running Demo..." : "🚀 Run Quick Demo"}
+          </button>
+
+          {demoResult && (
+            <div className="mt-4 p-4 bg-slate-700 rounded-lg border border-green-500">
+              <h3 className="font-semibold text-green-400 mb-2">Demo Results:</h3>
+              <div className="text-sm text-gray-300 space-y-1">
+                <p><strong>Status:</strong> {demoResult.success ? "✅ Success" : "❌ Failed"}</p>
+                <p><strong>Goal:</strong> {demoResult.demo_goal}</p>
+                <p><strong>Features Generated:</strong> {demoResult.features_generated}</p>
+                <p><strong>Graph Nodes:</strong> {demoResult.nodes_in_graph}</p>
+                {demoResult.sample_features && (
+                  <div>
+                    <p><strong>Sample Features:</strong></p>
+                    <ul className="ml-4 list-disc">
+                      {demoResult.sample_features.map((feature, idx) => (
+                        <li key={idx} className="text-blue-300">{feature}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                <p className="text-green-400 font-medium">{demoResult.message}</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Main Interface */}
+        <div className="bg-slate-800 rounded-lg p-8 border border-slate-700">
+          <h2 className="text-3xl font-semibold mb-6 text-purple-400">Generate Repository</h2>
+          
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Project Goal
+              </label>
+              <textarea
+                value={projectGoal}
+                onChange={(e) => setProjectGoal(e.target.value)}
+                placeholder="e.g., Generate a machine learning toolkit with regression, classification, and clustering algorithms"
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg focus:border-purple-500 focus:outline-none text-white"
+                rows={3}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Domain
+              </label>
+              <select
+                value={domain}
+                onChange={(e) => setDomain(e.target.value)}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg focus:border-purple-500 focus:outline-none text-white"
+              >
+                <option value="ml">Machine Learning</option>
+                <option value="web">Web Development</option>
+                <option value="data">Data Processing</option>
+                <option value="general">General</option>
+              </select>
+            </div>
+
+            <div className="flex space-x-4">
+              <button
+                onClick={handlePlanRepository}
+                disabled={isPlanning || isGenerating}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 px-6 py-3 rounded-lg font-medium transition-colors"
+              >
+                {isPlanning ? "Planning..." : "📋 Plan Repository"}
+              </button>
+              
+              <button
+                onClick={handleGenerateRepository}
+                disabled={isGenerating || isPlanning}
+                className="flex-1 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 px-6 py-3 rounded-lg font-medium transition-colors"
+              >
+                {isGenerating ? "Generating..." : "🏗️ Generate Repository"}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Results Section */}
+        {error && (
+          <div className="mt-6 p-4 bg-red-900 border border-red-600 rounded-lg">
+            <h3 className="font-semibold text-red-400 mb-2">Error:</h3>
+            <p className="text-red-300">{error}</p>
+          </div>
+        )}
+
+        {result && (
+          <div className="mt-6 p-6 bg-slate-800 border border-green-600 rounded-lg">
+            <h3 className="font-semibold text-green-400 mb-4">
+              {result.type === 'plan' ? 'Planning Results' : 'Generation Started'}
+            </h3>
+            
+            {result.type === 'plan' && (
+              <div className="space-y-3 text-sm">
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="text-center p-3 bg-slate-700 rounded">
+                    <div className="text-2xl font-bold text-blue-400">
+                      {result.data.metrics.total_features}
+                    </div>
+                    <div className="text-gray-300">Features</div>
+                  </div>
+                  <div className="text-center p-3 bg-slate-700 rounded">
+                    <div className="text-2xl font-bold text-purple-400">
+                      {result.data.metrics.total_nodes}
+                    </div>
+                    <div className="text-gray-300">Graph Nodes</div>
+                  </div>
+                  <div className="text-center p-3 bg-slate-700 rounded">
+                    <div className="text-2xl font-bold text-green-400">
+                      {result.data.metrics.total_edges}
+                    </div>
+                    <div className="text-gray-300">Connections</div>
+                  </div>
+                </div>
+                
+                <div>
+                  <h4 className="font-semibold text-blue-300 mb-2">Sample Feature Paths:</h4>
+                  <div className="bg-slate-700 p-3 rounded text-xs font-mono">
+                    {result.data.feature_paths.slice(0, 8).map((fp, idx) => (
+                      <div key={idx} className="text-blue-300">
+                        {fp.path} <span className="text-gray-400">({fp.source})</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {result.type === 'generate' && (
+              <div className="space-y-3">
+                <p className="text-gray-300">
+                  <strong>Job ID:</strong> <span className="font-mono text-blue-300">{result.jobId}</span>
+                </p>
+                <p className="text-gray-300">
+                  Repository generation has started. This process may take several minutes as the system:
+                </p>
+                <ul className="list-disc list-inside text-sm text-gray-300 ml-4 space-y-1">
+                  <li>Plans the repository structure using explore/exploit/missing feature strategy</li>
+                  <li>Designs file architecture and interfaces</li>
+                  <li>Generates code with topological traversal and test-driven development</li>
+                  <li>Validates generated code with automated testing</li>
+                </ul>
+                <div className="mt-4 p-3 bg-yellow-900 border border-yellow-600 rounded">
+                  <p className="text-yellow-300 text-sm">
+                    💡 <strong>Note:</strong> Use the job ID to check progress via the API: <code>/api/zerorepo/jobs/{result.jobId}</code>
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* System Info */}
+        <div className="mt-12 text-center text-gray-400 text-sm">
+          <div className="grid grid-cols-3 gap-4 mb-4">
+            <div className="p-3 bg-slate-800 rounded border border-slate-700">
+              <div className="font-semibold text-blue-400">Stage A</div>
+              <div>Proposal Construction</div>
+              <div className="text-xs">Explore/Exploit/Missing</div>
+            </div>
+            <div className="p-3 bg-slate-800 rounded border border-slate-700">
+              <div className="font-semibold text-purple-400">Stage B</div>
+              <div>Implementation Design</div>
+              <div className="text-xs">Files/Interfaces/Data Flow</div>
+            </div>
+            <div className="p-3 bg-slate-800 rounded border border-slate-700">
+              <div className="font-semibold text-green-400">Stage C</div>
+              <div>Code Generation</div>
+              <div className="text-xs">Topological TDD</div>
+            </div>
+          </div>
+          <p>ZeroRepo v1.0 - Graph-Driven Repository Generation System</p>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const Home = () => {
   const helloWorldApi = async () => {
@@ -20,21 +309,7 @@ const Home = () => {
     helloWorldApi();
   }, []);
 
-  return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
-    </div>
-  );
+  return <ZeroRepoInterface />;
 };
 
 function App() {
