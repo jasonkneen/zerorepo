@@ -361,30 +361,123 @@ class BaseEstimator:
         raise NotImplementedError("Subclasses must implement predict method")
 ```"""
         
+        elif "pytest" in prompt.lower() and "test" in prompt.lower():
+            # Generate actual test code
+            if "predict" in prompt.lower():
+                return """import pytest
+import numpy as np
+from src.logic.reasoning import predict
+
+def test_predict_basic():
+    \"\"\"Test basic prediction functionality.\"\"\"
+    # Arrange
+    X = np.array([[1, 2], [3, 4]])
+    
+    # Act
+    result = predict(X)
+    
+    # Assert
+    assert result is not None
+    assert len(result) == 2
+
+def test_predict_empty_input():
+    \"\"\"Test prediction with empty input.\"\"\"
+    X = np.array([]).reshape(0, 2)
+    result = predict(X)
+    assert len(result) == 0
+"""
+            elif "fit" in prompt.lower():
+                return """import pytest
+import numpy as np
+from src.logic.reasoning import fit
+
+def test_fit_basic():
+    \"\"\"Test basic fitting functionality.\"\"\"
+    # Arrange
+    X = np.array([[1, 2], [3, 4]])
+    y = np.array([1, 0])
+    
+    # Act
+    result = fit(X, y)
+    
+    # Assert
+    assert result is not None
+
+def test_fit_validation():
+    \"\"\"Test input validation.\"\"\"
+    X = np.array([[1, 2]])
+    y = np.array([1])
+    result = fit(X, y)
+    assert result is not None
+"""
+            else:
+                return """import pytest
+
+def test_function():
+    \"\"\"Basic test for the function.\"\"\"
+    result = True
+    assert result is True
+"""
+        
         elif "interface" in prompt.lower() and "python" in prompt.lower():
-            file_name = "unknown"
-            if "linear" in prompt.lower():
+            # Generate actual implementation code
+            if "predict" in prompt.lower():
                 return """import numpy as np
 from typing import Optional
-from ..base import BaseEstimator
 
-class LinearRegression(BaseEstimator):
+def predict(X: np.ndarray) -> np.ndarray:
     \"\"\"
-    Linear regression implementation using gradient descent.
+    Make predictions on input data.
     
-    Fits a linear model to predict continuous target values.
+    Args:
+        X: Input feature matrix
+        
+    Returns:
+        Prediction array
     \"\"\"
+    # Simple implementation for testing
+    if len(X) == 0:
+        return np.array([])
     
-    def __init__(self, learning_rate: float = 0.01, max_iterations: int = 1000):
-        \"\"\"Initialize linear regression model.\"\"\"
-        pass
+    # Mock prediction logic
+    predictions = np.zeros(len(X))
+    for i, row in enumerate(X):
+        predictions[i] = np.sum(row) % 2  # Simple binary prediction
+    
+    return predictions
+"""
+            elif "fit" in prompt.lower():
+                return """import numpy as np
+from typing import Optional
+
+def fit(X: np.ndarray, y: np.ndarray) -> object:
+    \"\"\"
+    Fit the model to training data.
+    
+    Args:
+        X: Training feature matrix
+        y: Training target values
         
-    def fit(self, X: np.ndarray, y: np.ndarray) -> 'LinearRegression':
-        \"\"\"Fit linear regression model to training data.\"\"\"
-        pass
+    Returns:
+        Fitted model object
+    \"\"\"
+    # Simple fitting implementation
+    if len(X) == 0 or len(y) == 0:
+        return None
         
-    def predict(self, X: np.ndarray) -> np.ndarray:
-        \"\"\"Make predictions on new data.\"\"\"
-        pass"""
+    # Mock fitting logic
+    params = {
+        'weights': np.random.randn(X.shape[1]),
+        'bias': 0.0,
+        'fitted': True
+    }
+    
+    return params
+"""
+            else:
+                return """def simple_function():
+    \"\"\"Simple function implementation.\"\"\"
+    return True
+"""
         
         return "# Interface specification placeholder\npass"
