@@ -397,10 +397,17 @@ Output (strict JSON):
     def _parse_missing_features_response(self, response: str) -> List[Dict]:
         """Parse missing features response into hierarchical structure."""
         try:
-            data = json.loads(response.strip())
+            # Handle LLMResponse object
+            if hasattr(response, 'content'):
+                response_text = response.content
+            else:
+                response_text = response
+                
+            data = json.loads(response_text.strip())
             return [data.get("missing_features", {})]
-        except:
+        except Exception as e:
             logger.error(f"Failed to parse missing features response: {response}")
+            logger.error(f"Parse error: {str(e)}")
             return []
             
     def _flatten_feature_hierarchy(self, hierarchy: Dict, prefix: str = "") -> List[str]:
