@@ -139,17 +139,16 @@ class ProposalController:
         explore_prompt = self._build_explore_prompt(explore_features, query_context)
         
         try:
-            response = await self.llm_client.generate(
+            response_json = await self.llm_client.generate_json(
                 prompt=explore_prompt,
                 temperature=0.3,  # Higher temperature for exploration
                 max_tokens=800
             )
             
-            if not response.success:
-                logger.error(f"LLM generation failed: {response.error}")
-                return []
+            paths = response_json.get("all_selected_feature_paths", [])
+            selected_paths = [FeaturePath(path=path, score=0.6, source="explore") for path in paths]
             
-            selected_paths = self._parse_feature_response(response.content, "explore")
+            logger.info(f"Explore phase generated {len(selected_paths)} features")
             return selected_paths
             
         except Exception as e:
