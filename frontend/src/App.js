@@ -361,37 +361,41 @@ const ZeroRepoInterface = () => {
 
         {/* Live Job Progress */}
         {jobProgress && jobProgress.status === "running" && (
-          <div className="mt-8 border border-gray-200 rounded-lg p-6 bg-white">
-            <h3 className="text-lg font-semibold text-black mb-4">
-              Generation Progress
+          <div className={`mt-8 ${themeClasses.cardBg} ${themeClasses.cardBorder} border rounded-3xl p-8 shadow-2xl`}>
+            <h3 className="text-xl font-bold mb-6">
+              🔄 Live Generation Progress
             </h3>
             
-            <div className="space-y-4">
+            <div className="space-y-6">
               {/* Progress Bar */}
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className={`w-full ${isDarkMode ? "bg-zinc-700" : "bg-gray-200"} rounded-full h-4 shadow-inner`}>
                 <div 
-                  className="bg-black h-2 rounded-full transition-all duration-500"
+                  className="bg-gradient-to-r from-blue-500 to-purple-500 h-4 rounded-full transition-all duration-1000 shadow-lg"
                   style={{ width: `${jobProgress.progress}%` }}
                 ></div>
               </div>
               
               {/* Progress Details */}
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-900 font-medium">{jobProgress.progress}% Complete</span>
-                <span className="text-gray-600">{jobProgress.current_stage}</span>
+              <div className="flex justify-between">
+                <span className="text-lg font-bold">{jobProgress.progress}% Complete</span>
+                <span className={`${themeClasses.textSecondary} font-medium`}>
+                  {jobProgress.current_stage}
+                </span>
               </div>
               
               {/* Stage Information */}
-              <div className="bg-gray-50 border border-gray-200 p-4 rounded-md">
-                <div className="flex items-center space-x-2 mb-2">
-                  <div className="w-2 h-2 bg-black rounded-full animate-pulse"></div>
-                  <span className="text-black font-medium">Currently Processing:</span>
+              <div className={`${themeClasses.cardBg} ${themeClasses.cardBorder} border p-6 rounded-2xl shadow-xl`}>
+                <div className="flex items-center space-x-3 mb-3">
+                  <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse shadow-lg"></div>
+                  <span className="font-semibold text-lg">Currently Processing</span>
                 </div>
-                <p className="text-gray-700 ml-4">{jobProgress.current_stage}</p>
+                <p className={`${themeClasses.textSecondary} ml-6 text-lg`}>
+                  {jobProgress.current_stage}
+                </p>
               </div>
               
               {/* Expected Timeline */}
-              <div className="text-xs text-gray-500 space-y-1">
+              <div className={`text-sm ${themeClasses.textMuted} space-y-2 p-4 rounded-2xl ${themeClasses.cardBg} border ${themeClasses.cardBorder}`}>
                 <p>⏱️ AI-powered generation typically takes 2-5 minutes for quality results</p>
                 <p>🧠 The system is making real LLM calls for intelligent feature planning</p>
               </div>
