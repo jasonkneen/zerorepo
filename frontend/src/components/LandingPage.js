@@ -93,6 +93,22 @@ const LandingPage = ({ isDarkMode, setIsDarkMode }) => {
       {/* Hero Section */}
       <section className={`py-20 bg-gradient-to-br ${themeClasses.gradient}`}>
         <div className="max-w-7xl mx-auto px-6">
+          {/* Research Paper Attribution */}
+          <div className="text-center mb-8">
+            <div className={`inline-flex items-center px-6 py-3 ${themeClasses.cardBg} ${themeClasses.cardBorder} border rounded-full shadow-lg`}>
+              <FileText className="h-4 w-4 mr-2 text-blue-500" />
+              <span className={`text-sm ${themeClasses.textSecondary} mr-2`}>Based on the paper:</span>
+              <a 
+                href="https://arxiv.org/abs/2509.16198"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-medium text-blue-500 hover:text-blue-400 transition-colors underline"
+              >
+                Repository Planning Graphs for Agentic Software Development
+              </a>
+            </div>
+          </div>
+
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <h1 className="text-6xl font-bold leading-tight mb-6">
