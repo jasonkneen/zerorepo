@@ -170,7 +170,11 @@ class ProposalController:
                 max_tokens=600
             )
             
-            missing_features = self._parse_missing_features_response(response)
+            if not response.success:
+                logger.error(f"LLM generation failed: {response.error}")
+                return []
+            
+            missing_features = self._parse_missing_features_response(response.content)
             
             # Convert to FeaturePath objects
             feature_paths = []
