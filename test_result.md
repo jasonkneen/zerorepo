@@ -101,3 +101,62 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: |
+  BUILD PROJECT: ZeroRepo — Graph-Driven Repository Generation
+  
+  Objective: Build an agentic system that (1) plans a software repository as a Repository Planning Graph (RPG), 
+  (2) refines it into file/data-flow/function designs, then (3) generates code topologically with test-driven 
+  validation and graph-guided localization & editing.
+  
+  The system should have three main stages:
+  - Stage A: Proposal-Level Construction (Capabilities graph with explore/exploit/missing features)
+  - Stage B: Implementation-Level Construction (File structure + data-flow & interface encoding) 
+  - Stage C: Graph-Guided Code Generation (Topological traversal with TDD)
+  
+  Key components: RPG data models, prompt templates, orchestration logic, tools & utilities, 
+  evaluation harness, and CLI interface.
+
+backend:
+  - task: "Basic FastAPI application setup"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Basic FastAPI app with MongoDB connection is running successfully"
+
+frontend:
+  - task: "Basic React application setup"
+    implemented: true
+    working: true
+    file: "App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "React app with router setup is running successfully"
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 0
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "ZeroRepo system architecture planning"
+    - "LLM integration requirements"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "Current application state: Basic React+FastAPI+MongoDB stack is running. Ready to begin ZeroRepo implementation planning phase."
