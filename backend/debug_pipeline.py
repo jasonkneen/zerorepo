@@ -56,7 +56,28 @@ async def debug_pipeline():
             node_types[node.kind] = node_types.get(node.kind, 0) + 1
         print(f"Node types: {node_types}")
         
-        # Check graph validation
+        # Check interface generation issue
+        print("\n=== DEBUGGING INTERFACE GENERATION ===")
+        file_nodes = [n for n in complete_graph.nodes if n.kind == "file"]
+        print(f"File nodes found: {len(file_nodes)}")
+        
+        for file_node in file_nodes:
+            print(f"File: {file_node.name} ({file_node.path_hint})")
+            feature_paths = file_node.meta.get("features", [])
+            print(f"  Features assigned: {feature_paths}")
+            
+            # Check what capabilities are found
+            assigned_caps = []
+            for node in complete_graph.nodes:
+                if node.kind == "capability":
+                    node_feature_path = node.meta.get("feature_path")
+                    print(f"  Checking capability: {node.name} with feature_path: {node_feature_path}")
+                    if node_feature_path in feature_paths:
+                        assigned_caps.append(node)
+                        print(f"    -> MATCHED!")
+            
+            print(f"  Capabilities found for {file_node.name}: {len(assigned_caps)}")
+            print()
         from zerorepo.rpg.graph_ops import RPGGraphOps
         graph_ops = RPGGraphOps(complete_graph)
         is_valid, errors = graph_ops.validate_dag()
