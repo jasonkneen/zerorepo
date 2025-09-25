@@ -434,10 +434,10 @@ Output (strict JSON):
         
         base_classes_text = ""
         if base_classes:
-            base_classes_text = f"\nAvailable Base Classes:\n" + "\n".join([
-                f"```python\n{code}\n```" 
-                for code in base_classes.values()
-            ])
+            base_code_blocks = []
+            for code in base_classes.values():
+                base_code_blocks.append(f"```python\n{code}\n```")
+            base_classes_text = f"\nAvailable Base Classes:\n" + "\n".join(base_code_blocks)
             
         return f"""Generate interface specifications for this file.
 
