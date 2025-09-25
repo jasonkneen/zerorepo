@@ -432,14 +432,63 @@ const GenerationPage = ({ isDarkMode, setIsDarkMode }) => {
                   </select>
                 </div>
               </div>
+              {/* GitHub */}
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold mb-2">GitHub API Key</label>
+                  <input
+                    type="password"
+                    placeholder="github_pat_..."
+                    value={apiKeys.github}
+                    onChange={(e) => setApiKeys(prev => ({...prev, github: e.target.value}))}
+                    className={`w-full p-3 border rounded-2xl ${themeClasses.input} ${themeClasses.inputFocus} focus:ring-2`}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2">Model</label>
+                  <select
+                    disabled={!apiKeys.github}
+                    className={`w-full p-3 border rounded-2xl ${themeClasses.input} ${themeClasses.inputFocus} focus:ring-2 disabled:opacity-50`}
+                  >
+                    {(availableModels.github || []).map(model => (
+                      <option key={model.id} value={model.id}>{model.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+            
+            <div className={`mt-6 p-4 ${themeClasses.cardBg} ${themeClasses.cardBorder} border rounded-2xl`}>
+              <h4 className="font-semibold mb-2 flex items-center">
+                <Database className="h-4 w-4 mr-2" />
+                Storage & Security
+              </h4>
+              <p className={`text-sm ${themeClasses.textMuted} mb-2`}>
+                🔒 All API keys are stored locally in your browser (localStorage). They are never sent to our servers.
+              </p>
+              <p className={`text-sm ${themeClasses.textMuted}`}>
+                🌐 Keys are transmitted directly to the respective AI providers for processing.
+              </p>
             </div>
             
             <div className="mt-6 flex justify-between items-center">
-              <p className={`text-sm ${themeClasses.textMuted}`}>
-                Leave empty to use Emergent LLM key for unified access
-              </p>
-              <button className={`px-6 py-3 rounded-full ${themeClasses.buttonPrimary} shadow-lg hover:scale-105 transition-all duration-300`}>
-                Save Settings
+              <div className="space-y-1">
+                <p className={`text-sm ${themeClasses.textMuted}`}>
+                  API keys are required for production use. Get your keys from:
+                </p>
+                <div className="flex space-x-4 text-xs">
+                  <a href="https://platform.openai.com/api-keys" target="_blank" className="text-blue-500 hover:underline">OpenAI</a>
+                  <a href="https://console.anthropic.com/" target="_blank" className="text-blue-500 hover:underline">Anthropic</a>
+                  <a href="https://aistudio.google.com/app/apikey" target="_blank" className="text-blue-500 hover:underline">Google</a>
+                  <a href="https://openrouter.ai/keys" target="_blank" className="text-blue-500 hover:underline">OpenRouter</a>
+                  <a href="https://github.com/marketplace/models" target="_blank" className="text-blue-500 hover:underline">GitHub</a>
+                </div>
+              </div>
+              <button 
+                onClick={() => setShowSettings(false)}
+                className={`px-6 py-3 rounded-full ${themeClasses.buttonPrimary} shadow-lg hover:scale-105 transition-all duration-300`}
+              >
+                Close Settings
               </button>
             </div>
           </div>
