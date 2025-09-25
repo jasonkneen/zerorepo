@@ -1,70 +1,155 @@
-# Getting Started with Create React App
+# ZeroRepo Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+React-based frontend for the ZeroRepo graph-driven repository generation system.
 
-## Available Scripts
+## 🎨 Features
 
-In the project directory, you can run:
+### Pages
+- **Landing Page** (`/`) - Hero, features, demo, and research attribution
+- **Generation Page** (`/generate`) - Full repository generation interface
 
-### `npm start`
+### Components
+- **Dark/Light Mode** - Seamless theme switching with localStorage persistence
+- **Provider Selection** - Multi-provider LLM configuration
+- **Live Progress** - Real-time generation tracking with file-level granularity
+- **API Settings** - Secure localStorage-based API key management
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## 🛠️ Technical Stack
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Core Technologies
+- **React 19** - Latest React with concurrent features
+- **React Router** - Client-side routing
+- **Tailwind CSS** - Utility-first styling with custom design system
+- **Lucide Icons** - Professional iconography
+- **Axios** - HTTP client for API communication
 
-### `npm test`
+### Design System
+- **Dark Mode** - Zinc-900 backgrounds with zinc-800 cards
+- **Light Mode** - Clean whites with gray accents
+- **Rounded Corners** - XL rounded corners (`rounded-3xl`)
+- **Shadows** - Beautiful drop shadows (`shadow-2xl`)
+- **Buttons** - Fully rounded pill-shaped buttons
+- **Typography** - Professional hierarchy with proper contrast
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 🔧 Setup
 
-### `npm run build`
+### Installation
+```bash
+cd frontend
+yarn install
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Development
+```bash
+yarn start
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Build
+```bash
+yarn build
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 🔑 API Key Management
 
-### `npm run eject`
+### Security Model
+- **Client-Side Storage** - All API keys stored in browser localStorage
+- **Never Server-Side** - Keys never transmitted to ZeroRepo servers
+- **Direct Provider Communication** - Keys sent directly to AI providers
+- **Automatic Persistence** - Keys saved/loaded automatically
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Supported Providers
+```javascript
+// Stored in localStorage as 'zerorepo_api_keys'
+{
+  openai: "sk-...",
+  anthropic: "sk-ant-...",
+  google: "AI...",
+  openrouter: "sk-or-...",
+  github: "github_pat_..."
+}
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## 🎯 User Flow
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### Landing Page
+1. **Hero Section** - Research attribution and value proposition
+2. **Preview Demo** - Visual file preview (no API calls)
+3. **Real AI Demo** - Actual GPT-4o-mini showcase (~30 seconds)
+4. **Features** - Comprehensive capability overview
+5. **How It Works** - Three-stage process explanation
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### Generation Page
+1. **API Configuration** - Settings panel with provider selection
+2. **Project Input** - Goal description and domain selection
+3. **Provider/Model Selection** - Dynamic dropdown based on available keys
+4. **Live Generation** - Real-time progress with file tracking
+5. **Results Display** - Professional visualization of generated repositories
 
-## Learn More
+## 🎨 Design Guidelines
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Theme System
+```javascript
+const themeClasses = {
+  bg: isDarkMode ? "bg-zinc-900" : "bg-white",
+  cardBg: isDarkMode ? "bg-zinc-800" : "bg-white",
+  text: isDarkMode ? "text-white" : "text-black",
+  buttonPrimary: isDarkMode ? "bg-white text-black" : "bg-black text-white"
+}
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Component Standards
+- **Rounded Corners** - Use `rounded-3xl` for cards, `rounded-2xl` for inputs
+- **Shadows** - Use `shadow-2xl` for primary elements, `shadow-xl` for secondary
+- **Buttons** - Always `rounded-full` with hover scale effects
+- **Icons** - Lucide icons with consistent sizing (h-4/5/6 w-4/5/6)
+- **Spacing** - Use space-y-6/8 for sections, space-x-4 for inline elements
 
-### Code Splitting
+## 📱 Responsive Design
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### Breakpoints
+- **Mobile** - Single column layouts, stacked buttons
+- **Tablet** - Two-column grids for forms
+- **Desktop** - Full grid layouts with optimal spacing
 
-### Analyzing the Bundle Size
+### Accessibility
+- **Keyboard Navigation** - Full keyboard support
+- **Focus States** - Visible focus rings on all interactive elements
+- **Color Contrast** - WCAG compliant contrast ratios
+- **Screen Readers** - Proper ARIA labels and semantic HTML
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## 🚀 Performance
 
-### Making a Progressive Web App
+### Optimization Features
+- **Code Splitting** - Route-based splitting
+- **Image Optimization** - Lazy loading and proper sizing
+- **API Caching** - Model lists cached client-side
+- **State Management** - Efficient React state updates
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+### Bundle Analysis
+```bash
+yarn build
+npx webpack-bundle-analyzer build/static/js/*.js
+```
 
-### Advanced Configuration
+## 🧪 Development
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+### Component Structure
+```
+src/
+├── App.js                 # Main app with routing
+├── components/
+│   ├── LandingPage.js    # Landing page with hero and features
+│   └── GenerationPage.js # Repository generation interface
+├── hooks/                # Custom React hooks
+└── lib/                  # Utility functions
+```
 
-### Deployment
+### Adding New Providers
+1. Update `/api/models` endpoint in backend
+2. Add provider to dropdown options
+3. Update localStorage key structure
+4. Add provider-specific model handling
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+---
 
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+*Built with React 19, Tailwind CSS, and Lucide Icons*
