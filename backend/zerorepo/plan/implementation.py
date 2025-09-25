@@ -348,7 +348,7 @@ Output: Complete code with base class definitions."""
         new_nodes = capability_graph.nodes.copy()
         new_edges = capability_graph.edges.copy()
         
-        # Create folder nodes
+        # Create folder nodes and connect them to relevant capability nodes
         folder_nodes = {}
         for folder_info in skeleton.folders:
             folder_path = folder_info["name"]
@@ -365,7 +365,20 @@ Output: Complete code with base class definitions."""
             new_nodes.append(node)
             folder_nodes[folder_path] = folder_id
             
-        # Create file nodes
+            # Connect folder to related capability nodes
+            mapped_capabilities = folder_info.get("maps", [])
+            for cap_name in mapped_capabilities:
+                # Find capability nodes that match this folder
+                for cap_node in capability_graph.nodes:
+                    if cap_node.kind == "capability" and cap_name.lower() in cap_node.name.lower():
+                        new_edges.append(RPGEdge(
+                            from_node=cap_node.id,
+                            to_node=folder_id,
+                            type="depends_on",
+                            note=f"capability {cap_node.name} maps to folder {folder_path}"
+                        ))
+            
+        # Create file nodes and connect them to capabilities and folders
         for file_path, feature_paths in assignments.items():
             file_id = f"file-{len(new_nodes)}"
             
@@ -379,7 +392,7 @@ Output: Complete code with base class definitions."""
             )
             new_nodes.append(node)
             
-            # Add folder containment edge
+            # Connect file to folder (folder containment)
             folder_path = os.path.dirname(file_path)
             if folder_path in folder_nodes:
                 parent_folder = folder_nodes[folder_path]
@@ -393,6 +406,17 @@ Output: Complete code with base class definitions."""
                     note="folder containment"
                 )
                 new_edges.append(edge)
+            
+            # Connect file to capability nodes based on feature paths
+            for feature_path in feature_paths:
+                for cap_node in capability_graph.nodes:
+                    if cap_node.kind == "capability" and cap_node.meta.get("feature_path") == feature_path:
+                        new_edges.append(RPGEdge(
+                            from_node=cap_node.id,
+                            to_node=file_id,
+                            type="depends_on",
+                            note=f"capability {feature_path} implemented in {file_path}"
+                        ))
                 
         return RPG(
             nodes=new_nodes,
