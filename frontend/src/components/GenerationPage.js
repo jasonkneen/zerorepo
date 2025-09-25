@@ -279,38 +279,105 @@ const GenerationPage = ({ isDarkMode, setIsDarkMode }) => {
               API Settings
             </h3>
             
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-semibold mb-2">OpenAI API Key</label>
-                <input
-                  type="password"
-                  placeholder="sk-..."
-                  className={`w-full p-3 border rounded-2xl ${themeClasses.input} ${themeClasses.inputFocus} focus:ring-2`}
-                />
+            <div className="space-y-6">
+              {/* OpenAI */}
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold mb-2">OpenAI API Key</label>
+                  <input
+                    type="password"
+                    placeholder="sk-..."
+                    value={apiKeys.openai}
+                    onChange={(e) => setApiKeys(prev => ({...prev, openai: e.target.value}))}
+                    className={`w-full p-3 border rounded-2xl ${themeClasses.input} ${themeClasses.inputFocus} focus:ring-2`}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2">Model</label>
+                  <select
+                    disabled={!apiKeys.openai}
+                    className={`w-full p-3 border rounded-2xl ${themeClasses.input} ${themeClasses.inputFocus} focus:ring-2 disabled:opacity-50`}
+                  >
+                    {(availableModels.openai || []).map(model => (
+                      <option key={model.id} value={model.id}>{model.name}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-semibold mb-2">Anthropic API Key</label>
-                <input
-                  type="password"
-                  placeholder="sk-ant-..."
-                  className={`w-full p-3 border rounded-2xl ${themeClasses.input} ${themeClasses.inputFocus} focus:ring-2`}
-                />
+
+              {/* Anthropic */}
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold mb-2">Anthropic API Key</label>
+                  <input
+                    type="password"
+                    placeholder="sk-ant-..."
+                    value={apiKeys.anthropic}
+                    onChange={(e) => setApiKeys(prev => ({...prev, anthropic: e.target.value}))}
+                    className={`w-full p-3 border rounded-2xl ${themeClasses.input} ${themeClasses.inputFocus} focus:ring-2`}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2">Model</label>
+                  <select
+                    disabled={!apiKeys.anthropic}
+                    className={`w-full p-3 border rounded-2xl ${themeClasses.input} ${themeClasses.inputFocus} focus:ring-2 disabled:opacity-50`}
+                  >
+                    {(availableModels.anthropic || []).map(model => (
+                      <option key={model.id} value={model.id}>{model.name}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-semibold mb-2">Google/Gemini API Key</label>
-                <input
-                  type="password"
-                  placeholder="AI..."
-                  className={`w-full p-3 border rounded-2xl ${themeClasses.input} ${themeClasses.inputFocus} focus:ring-2`}
-                />
+
+              {/* Google/Gemini */}
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold mb-2">Google/Gemini API Key</label>
+                  <input
+                    type="password"
+                    placeholder="AI..."
+                    value={apiKeys.google}
+                    onChange={(e) => setApiKeys(prev => ({...prev, google: e.target.value}))}
+                    className={`w-full p-3 border rounded-2xl ${themeClasses.input} ${themeClasses.inputFocus} focus:ring-2`}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2">Model</label>
+                  <select
+                    disabled={!apiKeys.google}
+                    className={`w-full p-3 border rounded-2xl ${themeClasses.input} ${themeClasses.inputFocus} focus:ring-2 disabled:opacity-50`}
+                  >
+                    {(availableModels.google || []).map(model => (
+                      <option key={model.id} value={model.id}>{model.name}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-semibold mb-2">OpenRouter API Key</label>
-                <input
-                  type="password"
-                  placeholder="sk-or-..."
-                  className={`w-full p-3 border rounded-2xl ${themeClasses.input} ${themeClasses.inputFocus} focus:ring-2`}
-                />
+
+              {/* OpenRouter */}
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold mb-2">OpenRouter API Key</label>
+                  <input
+                    type="password"
+                    placeholder="sk-or-..."
+                    value={apiKeys.openrouter}
+                    onChange={(e) => setApiKeys(prev => ({...prev, openrouter: e.target.value}))}
+                    className={`w-full p-3 border rounded-2xl ${themeClasses.input} ${themeClasses.inputFocus} focus:ring-2`}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2">Model</label>
+                  <select
+                    disabled={!apiKeys.openrouter}
+                    className={`w-full p-3 border rounded-2xl ${themeClasses.input} ${themeClasses.inputFocus} focus:ring-2 disabled:opacity-50`}
+                  >
+                    {(availableModels.openrouter || []).map(model => (
+                      <option key={model.id} value={model.id}>{model.name}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
             
@@ -318,7 +385,7 @@ const GenerationPage = ({ isDarkMode, setIsDarkMode }) => {
               <p className={`text-sm ${themeClasses.textMuted}`}>
                 Leave empty to use Emergent LLM key for unified access
               </p>
-              <button className={`px-6 py-2 rounded-full ${themeClasses.buttonPrimary} shadow-lg hover:scale-105 transition-all duration-300`}>
+              <button className={`px-6 py-3 rounded-full ${themeClasses.buttonPrimary} shadow-lg hover:scale-105 transition-all duration-300`}>
                 Save Settings
               </button>
             </div>
