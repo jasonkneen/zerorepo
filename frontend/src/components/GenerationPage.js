@@ -24,7 +24,7 @@ const API = `${BACKEND_URL}/api`;
 const GenerationPage = ({ isDarkMode, setIsDarkMode }) => {
   const [projectGoal, setProjectGoal] = useState("");
   const [domain, setDomain] = useState("ml");
-  const [selectedProvider, setSelectedProvider] = useState("emergent");
+  const [selectedProvider, setSelectedProvider] = useState("openai");
   const [selectedModel, setSelectedModel] = useState("gpt-4o-mini");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isPlanning, setIsPlanning] = useState(false);
