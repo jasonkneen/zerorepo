@@ -459,26 +459,26 @@ const ZeroRepoInterface = () => {
             
             {result.type === 'generate' && !jobProgress && (
               <div className="space-y-4">
-                <div className="p-4 bg-gray-50 border border-gray-200 rounded-md">
-                  <p className="text-gray-700 mb-2">
-                    <span className="font-medium">Job ID:</span> 
-                    <span className="font-mono text-black ml-2">{result.jobId}</span>
+                <div className={`p-6 ${themeClasses.cardBg} ${themeClasses.cardBorder} border rounded-2xl shadow-lg`}>
+                  <p className={`${themeClasses.textSecondary} mb-3`}>
+                    <span className="font-semibold">Job ID:</span> 
+                    <span className="font-mono ml-2">{result.jobId}</span>
                   </p>
-                  <p className="text-gray-700 mb-3">
+                  <p className={`${themeClasses.textSecondary} mb-4`}>
                     Repository generation has started. This process involves:
                   </p>
-                  <div className="space-y-2 text-sm text-gray-600">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-4 h-4 border border-gray-300 rounded flex items-center justify-center text-xs">A</div>
-                      <span>AI plans repository structure using explore/exploit/missing features</span>
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-3">
+                      <div className={`w-8 h-8 ${themeClasses.cardBorder} border rounded-full flex items-center justify-center text-xs font-bold shadow-lg`}>A</div>
+                      <span className={themeClasses.textSecondary}>AI plans repository structure using explore/exploit/missing features</span>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-4 h-4 border border-gray-300 rounded flex items-center justify-center text-xs">B</div>
-                      <span>Designs file architecture and interfaces</span>
+                    <div className="flex items-center space-x-3">
+                      <div className={`w-8 h-8 ${themeClasses.cardBorder} border rounded-full flex items-center justify-center text-xs font-bold shadow-lg`}>B</div>
+                      <span className={themeClasses.textSecondary}>Designs file architecture and interfaces</span>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-4 h-4 border border-gray-300 rounded flex items-center justify-center text-xs">C</div>
-                      <span>Generates actual code with test-driven development</span>
+                    <div className="flex items-center space-x-3">
+                      <div className={`w-8 h-8 ${themeClasses.cardBorder} border rounded-full flex items-center justify-center text-xs font-bold shadow-lg`}>C</div>
+                      <span className={themeClasses.textSecondary}>Generates actual code with test-driven development</span>
                     </div>
                   </div>
                 </div>
@@ -486,28 +486,28 @@ const ZeroRepoInterface = () => {
             )}
             
             {result.type === 'generate_complete' && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-4 bg-gray-50 border border-gray-200 rounded-md">
-                    <div className="text-2xl font-bold text-black">
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-6">
+                  <div className={`text-center p-6 ${themeClasses.cardBg} ${themeClasses.cardBorder} border rounded-2xl shadow-xl`}>
+                    <div className="text-3xl font-bold mb-2">
                       {result.data.result?.generated_files?.length || 0}
                     </div>
-                    <div className="text-sm text-gray-600">Files Generated</div>
+                    <div className={`text-sm font-medium ${themeClasses.textSecondary}`}>Files Generated</div>
                   </div>
-                  <div className="text-center p-4 bg-gray-50 border border-gray-200 rounded-md">
-                    <div className="text-2xl font-bold text-black">
+                  <div className={`text-center p-6 ${themeClasses.cardBg} ${themeClasses.cardBorder} border rounded-2xl shadow-xl`}>
+                    <div className="text-3xl font-bold mb-2">
                       {Math.round((result.data.result?.metrics?.success_rate || 0) * 100)}%
                     </div>
-                    <div className="text-sm text-gray-600">Success Rate</div>
+                    <div className={`text-sm font-medium ${themeClasses.textSecondary}`}>Success Rate</div>
                   </div>
                 </div>
                 
                 {result.data.result?.generated_files?.length > 0 && (
                   <div>
-                    <h4 className="font-medium text-black mb-3">Generated Files</h4>
-                    <div className="bg-gray-50 border border-gray-200 p-4 rounded-md text-xs font-mono max-h-32 overflow-y-auto">
+                    <h4 className="font-semibold text-lg mb-4">Generated Files</h4>
+                    <div className={`${themeClasses.cardBg} ${themeClasses.cardBorder} border p-6 rounded-2xl text-sm font-mono max-h-48 overflow-y-auto shadow-inner`}>
                       {result.data.result.generated_files.map((file, idx) => (
-                        <div key={idx} className="text-gray-800 py-1">{file}</div>
+                        <div key={idx} className={`${themeClasses.textSecondary} py-1`}>{file}</div>
                       ))}
                     </div>
                   </div>
