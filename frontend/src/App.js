@@ -518,35 +518,35 @@ const ZeroRepoInterface = () => {
         )}
 
         {/* Process Architecture */}
-        <div className="mt-12 border-t border-gray-200 pt-8">
-          <h3 className="text-lg font-medium text-black mb-6 text-center">Repository Generation Process</h3>
-          <div className="grid grid-cols-3 gap-6">
+        <div className="mt-16">
+          <h3 className="text-2xl font-bold text-center mb-8">Repository Generation Process</h3>
+          <div className="grid grid-cols-3 gap-8">
             <div className="text-center">
-              <div className="w-12 h-12 bg-gray-100 border-2 border-gray-300 rounded-lg flex items-center justify-center mx-auto mb-3">
-                <span className="text-lg font-bold text-gray-700">A</span>
+              <div className={`w-16 h-16 ${themeClasses.cardBg} ${themeClasses.cardBorder} border-2 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-2xl`}>
+                <span className="text-2xl font-bold">A</span>
               </div>
-              <h4 className="font-medium text-black mb-1">Proposal Construction</h4>
-              <p className="text-sm text-gray-600">Explore/Exploit/Missing</p>
+              <h4 className="font-bold text-lg mb-2">Proposal Construction</h4>
+              <p className={`text-sm ${themeClasses.textSecondary}`}>Explore/Exploit/Missing</p>
             </div>
             <div className="text-center">
-              <div className="w-12 h-12 bg-gray-100 border-2 border-gray-300 rounded-lg flex items-center justify-center mx-auto mb-3">
-                <span className="text-lg font-bold text-gray-700">B</span>
+              <div className={`w-16 h-16 ${themeClasses.cardBg} ${themeClasses.cardBorder} border-2 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-2xl`}>
+                <span className="text-2xl font-bold">B</span>
               </div>
-              <h4 className="font-medium text-black mb-1">Implementation Design</h4>
-              <p className="text-sm text-gray-600">Files/Interfaces/Data Flow</p>
+              <h4 className="font-bold text-lg mb-2">Implementation Design</h4>
+              <p className={`text-sm ${themeClasses.textSecondary}`}>Files/Interfaces/Data Flow</p>
             </div>
             <div className="text-center">
-              <div className="w-12 h-12 bg-black rounded-lg flex items-center justify-center mx-auto mb-3">
-                <span className="text-lg font-bold text-white">C</span>
+              <div className={`w-16 h-16 ${themeClasses.buttonPrimary} rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-2xl`}>
+                <span className="text-2xl font-bold">C</span>
               </div>
-              <h4 className="font-medium text-black mb-1">Code Generation</h4>
-              <p className="text-sm text-gray-600">Topological TDD</p>
+              <h4 className="font-bold text-lg mb-2">Code Generation</h4>
+              <p className={`text-sm ${themeClasses.textSecondary}`}>Topological TDD</p>
             </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="mt-12 text-center text-gray-500 text-sm border-t border-gray-200 pt-6">
+        <div className={`mt-16 text-center ${themeClasses.textMuted} text-sm border-t ${themeClasses.headerBorder} pt-8`}>
           <p>ZeroRepo v1.0 - Graph-Driven Repository Generation System</p>
         </div>
       </div>
