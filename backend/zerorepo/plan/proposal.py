@@ -338,59 +338,72 @@ class ProposalController:
         features_text = "\n".join([f"- {f.path} (score: {f.score:.2f})" for f in similar_features])
         current_features = "\n".join([f"- {path}" for path in context["current_repo_paths"]])
         
-        return f"""You are expanding a repository's feature tree with high-relevance paths.
+        return f"""You are a software repository planning AI. Your job is to select relevant features for a repository.
 
-Project Goal: {context["project_goal"]}
+PROJECT GOAL: {context["project_goal"]}
 
-Current Repository Features:
+CURRENT REPOSITORY FEATURES:
 {current_features}
 
-Available High-Relevance Features:
+AVAILABLE HIGH-RELEVANCE FEATURES:
 {features_text}
 
-Rules:
-- Select only from the available features above
-- Maximize coverage of essential capabilities for the project goal
-- Avoid duplicates and generic infrastructure (logging, config, utils)
-- Focus on core algorithmic and business logic features
+TASK: Select 3-5 features from the available features that are most essential for the project goal.
 
-Output (strict JSON):
-{{"all_selected_feature_paths": ["path1", "path2", "path3"]}}"""
+RULES:
+- Select ONLY from the available features listed above
+- Choose features that directly support the project goal
+- Avoid generic infrastructure features (logging, config, utils)
+- Focus on core business logic and algorithms
+
+RESPONSE FORMAT: You must respond with valid JSON in exactly this format:
+{{"all_selected_feature_paths": ["feature1", "feature2", "feature3"]}}
+
+Example response:
+{{"all_selected_feature_paths": ["ml/algorithms/regression/linear", "ml/evaluation/metrics"]}}
+
+JSON Response:"""
 
     def _build_explore_prompt(self, explore_features: List[FeaturePath], context: Dict) -> str:
         """Build prompt for explore feature selection."""
         features_text = "\n".join([f"- {f.path}" for f in explore_features])
         current_features = "\n".join([f"- {path}" for path in context["current_repo_paths"]])
         
-        return f"""Select additional feature paths from exploration to improve breadth without drifting from project goal.
+        return f"""You are adding diversity to a software repository feature set.
 
-Project Goal: {context["project_goal"]}
+PROJECT GOAL: {context["project_goal"]}
 
-Current Features: 
+CURRENT FEATURES: 
 {current_features}
 
-Exploration Candidates:
+EXPLORATION CANDIDATES:
 {features_text}
 
-Select features that add diversity and completeness. Skip already-present paths.
+TASK: Select 1-2 features that add useful diversity without drifting from the project goal.
 
-Output (strict JSON):
-{{"all_selected_feature_paths": ["path1", "path2"]}}"""
+RESPONSE FORMAT: You must respond with valid JSON in exactly this format:
+{{"all_selected_feature_paths": ["feature1", "feature2"]}}
+
+JSON Response:"""
 
     def _build_missing_prompt(self, current_summary: str, iteration: int) -> str:
         """Build prompt for missing feature synthesis."""
-        return f"""Propose missing, implementable features for this repository.
+        return f"""You are identifying missing capabilities for a software repository.
 
-Project Goal: {self.config.project_goal}
+PROJECT GOAL: {self.config.project_goal}
 
-Current Features Summary:
+CURRENT FEATURES SUMMARY:
 {current_summary}
 
-Provide a 3-5 level hierarchy with concrete algorithmic leaves.
-Focus on gaps in the current feature set.
+TASK: Propose missing features that would complete this repository. Provide a 2-3 level hierarchy with specific implementable features.
 
-Output (strict JSON):
-{{"missing_features": {{"category": {{"subcategory": ["leaf_feature_1", "leaf_feature_2"]}}}}}}"""
+RESPONSE FORMAT: You must respond with valid JSON in exactly this format:
+{{"missing_features": {{"category1": {{"subcategory1": ["feature1", "feature2"]}}, "category2": {{"subcategory2": ["feature3"]}}}}}}
+
+Example:
+{{"missing_features": {{"algorithms": {{"sorting": ["quicksort", "mergesort"]}}, "data": {{"validation": ["input_checker"]}}}}}}
+
+JSON Response:"""
 
     def _parse_feature_response(self, response: str, source: str) -> List[FeaturePath]:
         """Parse LLM response into FeaturePath objects."""
