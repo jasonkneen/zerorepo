@@ -596,3 +596,28 @@ Output: Complete Python code with interfaces only (no implementations)."""
             specs.append(current_spec)
             
         return specs
+        
+    def _parse_base_classes_response(self, response_text: str) -> Dict[str, str]:
+        """Parse base classes response into code blocks."""
+        base_classes = {}
+        
+        # Simple parsing of code blocks
+        if "```python" in response_text:
+            # Extract Python code blocks
+            parts = response_text.split("```python")
+            for i, part in enumerate(parts[1:], 1):
+                if "```" in part:
+                    code = part.split("```")[0].strip()
+                    if "class " in code:
+                        # Extract class name
+                        for line in code.split('\n'):
+                            if line.strip().startswith('class '):
+                                class_name = line.split('class ')[1].split('(')[0].split(':')[0].strip()
+                                base_classes[class_name] = code
+                                break
+        else:
+            # Fallback: treat entire response as code
+            if "class " in response_text:
+                base_classes["BaseClass"] = response_text
+                
+        return base_classes
