@@ -40,8 +40,27 @@ const GenerationPage = ({ isDarkMode, setIsDarkMode }) => {
     openai: "",
     anthropic: "",
     google: "",
-    openrouter: ""
+    openrouter: "",
+    github: ""
   });
+
+  // Load API keys from localStorage on component mount
+  useEffect(() => {
+    const savedKeys = localStorage.getItem('zerorepo_api_keys');
+    if (savedKeys) {
+      try {
+        const parsedKeys = JSON.parse(savedKeys);
+        setApiKeys(parsedKeys);
+      } catch (err) {
+        console.error("Failed to parse saved API keys:", err);
+      }
+    }
+  }, []);
+
+  // Save API keys to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('zerorepo_api_keys', JSON.stringify(apiKeys));
+  }, [apiKeys]);
 
   // Load available models on component mount
   useEffect(() => {
@@ -68,6 +87,25 @@ const GenerationPage = ({ isDarkMode, setIsDarkMode }) => {
       setSelectedModel(models[0].id);
     }
   }, [selectedProvider, availableModels]);
+
+  // Check if current provider has API key
+  const hasApiKey = (provider) => {
+    return apiKeys[provider] && apiKeys[provider].trim().length > 0;
+  };
+
+  // Get effective API configuration for requests
+  const getApiConfig = () => {
+    if (hasApiKey(selectedProvider)) {
+      return {
+        provider: selectedProvider,
+        model: selectedModel,
+        api_key: apiKeys[selectedProvider]
+      };
+    } else {
+      // No valid API key for selected provider
+      return null;
+    }
+  };
 
   const themeClasses = {
     bg: isDarkMode ? "bg-zinc-900" : "bg-white",
