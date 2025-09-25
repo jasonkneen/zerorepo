@@ -16,6 +16,7 @@ const ZeroRepoInterface = () => {
   const [demoResult, setDemoResult] = useState(null);
   const [currentJob, setCurrentJob] = useState(null);
   const [jobProgress, setJobProgress] = useState(null);
+  const [isDarkMode, setIsDarkMode] = useState(true);
 
   // Poll job status for live updates
   useEffect(() => {
