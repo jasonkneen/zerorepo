@@ -1,4 +1,5 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException, BackgroundTasks
+from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -6,9 +7,14 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field
-from typing import List
+from typing import List, Optional
 import uuid
 from datetime import datetime
+import asyncio
+
+# ZeroRepo imports
+from zerorepo.orchestrator import ZeroRepoOrchestrator, generate_repository, plan_repository
+from zerorepo.core.models import ProjectConfig, GenerationResult
 
 
 ROOT_DIR = Path(__file__).parent
@@ -20,7 +26,7 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
 # Create the main app without a prefix
-app = FastAPI()
+app = FastAPI(title="ZeroRepo API", description="Graph-Driven Repository Generation System")
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
@@ -35,10 +41,35 @@ class StatusCheck(BaseModel):
 class StatusCheckCreate(BaseModel):
     client_name: str
 
-# Add your routes to the router instead of directly to app
+# ZeroRepo API Models
+class GenerateRepositoryRequest(BaseModel):
+    project_goal: str = Field(..., description="High-level project objective")
+    domain: str = Field("general", description="Problem domain (ml, web, data, etc.)")
+    llm_model: str = Field("gpt-4", description="LLM model to use")
+    max_iterations: int = Field(30, description="Maximum planning iterations")
+    target_language: str = Field("python", description="Programming language")
+
+class PlanRepositoryRequest(BaseModel):
+    project_goal: str = Field(..., description="High-level project objective") 
+    domain: str = Field("general", description="Problem domain")
+    llm_model: str = Field("gpt-4", description="LLM model to use")
+    max_iterations: int = Field(30, description="Maximum planning iterations")
+
+class GenerationJob(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    status: str = Field("pending", description="Job status: pending, running, completed, failed")
+    project_goal: str
+    domain: str
+    progress: int = Field(0, description="Progress percentage 0-100")
+    result: Optional[dict] = None
+    error: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+# Basic endpoints
 @api_router.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "ZeroRepo API - Graph-Driven Repository Generation"}
 
 @api_router.post("/status", response_model=StatusCheck)
 async def create_status_check(input: StatusCheckCreate):
@@ -51,6 +82,244 @@ async def create_status_check(input: StatusCheckCreate):
 async def get_status_checks():
     status_checks = await db.status_checks.find().to_list(1000)
     return [StatusCheck(**status_check) for status_check in status_checks]
+
+# ZeroRepo API Endpoints
+
+@api_router.post("/zerorepo/generate", response_model=dict)
+async def generate_repository_endpoint(
+    request: GenerateRepositoryRequest,
+    background_tasks: BackgroundTasks
+):
+    """
+    Generate a complete repository using ZeroRepo system.
+    Returns job ID for tracking progress.
+    """
+    try:
+        # Create job record
+        job = GenerationJob(
+            project_goal=request.project_goal,
+            domain=request.domain,
+            status="pending"
+        )
+        
+        # Store in database
+        await db.generation_jobs.insert_one(job.dict())
+        
+        # Start background task
+        background_tasks.add_task(
+            run_generation_job,
+            job.id,
+            request
+        )
+        
+        return {
+            "job_id": job.id,
+            "status": "pending",
+            "message": "Repository generation started",
+            "project_goal": request.project_goal
+        }
+        
+    except Exception as e:
+        logging.error(f"Error starting generation job: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to start generation: {str(e)}")
+
+@api_router.post("/zerorepo/plan", response_model=dict)
+async def plan_repository_endpoint(request: PlanRepositoryRequest):
+    """
+    Plan a repository (Stage A only) - returns RPG and feature paths.
+    """
+    try:
+        logging.info(f"Planning repository: {request.project_goal}")
+        
+        # Run planning
+        capability_graph, feature_paths = await plan_repository(
+            project_goal=request.project_goal,
+            domain=request.domain,
+            llm_model=request.llm_model,
+            max_iterations=request.max_iterations,
+            emergent_api_key=os.environ.get('EMERGENT_LLM_KEY', 'sk-emergent-b99311bB564934e547')
+        )
+        
+        return {
+            "success": True,
+            "capability_graph": capability_graph.dict(),
+            "feature_paths": [fp.dict() for fp in feature_paths],
+            "metrics": {
+                "total_features": len(feature_paths),
+                "total_nodes": len(capability_graph.nodes),
+                "total_edges": len(capability_graph.edges)
+            }
+        }
+        
+    except Exception as e:
+        logging.error(f"Planning error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Planning failed: {str(e)}")
+
+@api_router.get("/zerorepo/jobs/{job_id}")
+async def get_generation_job(job_id: str):
+    """Get status and results of a generation job."""
+    try:
+        job = await db.generation_jobs.find_one({"id": job_id})
+        
+        if not job:
+            raise HTTPException(status_code=404, detail="Job not found")
+            
+        return {
+            "id": job["id"],
+            "status": job["status"],
+            "project_goal": job["project_goal"],
+            "domain": job["domain"],
+            "progress": job["progress"],
+            "result": job.get("result"),
+            "error": job.get("error"),
+            "created_at": job["created_at"],
+            "updated_at": job["updated_at"]
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error fetching job {job_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch job status")
+
+@api_router.get("/zerorepo/jobs")
+async def list_generation_jobs(limit: int = 20, skip: int = 0):
+    """List recent generation jobs."""
+    try:
+        jobs = await db.generation_jobs.find().sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+        
+        return {
+            "jobs": [
+                {
+                    "id": job["id"],
+                    "status": job["status"], 
+                    "project_goal": job["project_goal"],
+                    "domain": job["domain"],
+                    "progress": job["progress"],
+                    "created_at": job["created_at"]
+                }
+                for job in jobs
+            ],
+            "total": len(jobs)
+        }
+        
+    except Exception as e:
+        logging.error(f"Error listing jobs: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to list jobs")
+
+@api_router.post("/zerorepo/quick-demo")
+async def quick_demo():
+    """
+    Quick demo endpoint to test ZeroRepo system with a simple ML example.
+    """
+    try:
+        # Use a simple, fast example
+        demo_goal = "Generate a basic linear regression class with fit and predict methods"
+        
+        logging.info("Starting ZeroRepo quick demo")
+        
+        # Run minimal generation
+        config = ProjectConfig(
+            project_goal=demo_goal,
+            domain="ml", 
+            max_iterations=5,  # Reduced for speed
+            llm_model="gpt-4"
+        )
+        
+        # For demo, just run planning stage
+        orchestrator = ZeroRepoOrchestrator(
+            config,
+            emergent_api_key=os.environ.get('EMERGENT_LLM_KEY', 'sk-emergent-b99311bB564934e547')
+        )
+        
+        capability_graph, feature_paths = await orchestrator.run_proposal_stage()
+        
+        await orchestrator.cleanup()
+        
+        return {
+            "success": True,
+            "demo_goal": demo_goal,
+            "features_generated": len(feature_paths),
+            "nodes_in_graph": len(capability_graph.nodes),
+            "sample_features": [fp.path for fp in feature_paths[:5]],
+            "message": "Demo completed successfully - ZeroRepo system is working!"
+        }
+        
+    except Exception as e:
+        logging.error(f"Demo error: {str(e)}")
+        return {
+            "success": False,
+            "error": str(e),
+            "message": "Demo encountered an error"
+        }
+
+# Background task functions
+
+async def run_generation_job(job_id: str, request: GenerateRepositoryRequest):
+    """Background task to run repository generation."""
+    try:
+        # Update status to running
+        await db.generation_jobs.update_one(
+            {"id": job_id},
+            {
+                "$set": {
+                    "status": "running",
+                    "progress": 10,
+                    "updated_at": datetime.utcnow()
+                }
+            }
+        )
+        
+        # Create output directory (in practice, might use cloud storage)
+        output_dir = f"/tmp/zerorepo_output/{job_id}"
+        os.makedirs(output_dir, exist_ok=True)
+        
+        # Update progress
+        await db.generation_jobs.update_one(
+            {"id": job_id},
+            {"$set": {"progress": 30, "updated_at": datetime.utcnow()}}
+        )
+        
+        # Run generation
+        result = await generate_repository(
+            project_goal=request.project_goal,
+            output_dir=output_dir,
+            domain=request.domain,
+            llm_model=request.llm_model,
+            max_iterations=request.max_iterations,
+            emergent_api_key=os.environ.get('EMERGENT_LLM_KEY', 'sk-emergent-b99311bB564934e547')
+        )
+        
+        # Update with results
+        await db.generation_jobs.update_one(
+            {"id": job_id},
+            {
+                "$set": {
+                    "status": "completed" if result.success else "failed",
+                    "progress": 100,
+                    "result": result.dict() if result.success else None,
+                    "error": result.errors[0] if result.errors else None,
+                    "updated_at": datetime.utcnow()
+                }
+            }
+        )
+        
+        logging.info(f"Generation job {job_id} completed: {result.success}")
+        
+    except Exception as e:
+        logging.error(f"Generation job {job_id} failed: {str(e)}")
+        
+        # Update with error
+        await db.generation_jobs.update_one(
+            {"id": job_id},
+            {
+                "$set": {
+                    "status": "failed",
+                    "error": str(e),
+                    "updated_at": datetime.utcnow()
+                }
+            }
+        )
 
 # Include the router in the main app
 app.include_router(api_router)
@@ -73,3 +342,14 @@ logger = logging.getLogger(__name__)
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
+
+# Health check endpoint for ZeroRepo
+@api_router.get("/health")
+async def health_check():
+    """Health check endpoint."""
+    return {
+        "status": "healthy",
+        "service": "ZeroRepo API",
+        "timestamp": datetime.utcnow(),
+        "version": "1.0.0"
+    }
