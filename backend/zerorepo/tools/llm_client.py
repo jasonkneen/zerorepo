@@ -200,8 +200,9 @@ class EmergentLLMClient:
         is_ml_domain = any(keyword in prompt.lower() for keyword in ["machine", "ml", "learning", "algorithm", "regression"])
         is_logic_domain = any(keyword in prompt.lower() for keyword in ["logic", "constraint", "solver", "calculator"])
         
-        # Exploit feature selection
-        if "exploit" in prompt.lower() and "selected_feature_paths" in prompt:
+        # Exploit feature selection - look for various indicators
+        if ("selected_feature_paths" in prompt and 
+            any(keyword in prompt.lower() for keyword in ["exploit", "expanding", "high-relevance", "available.*features"])):
             if is_logic_domain:
                 return json.dumps({
                     "all_selected_feature_paths": [
