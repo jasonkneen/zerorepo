@@ -14,7 +14,8 @@ import {
   Database,
   Clock,
   Zap,
-  Code
+  Code,
+  Cpu
 } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
