@@ -232,8 +232,9 @@ class EmergentLLMClient:
                     ]
                 })
             
-        # Explore feature selection
-        elif "explore" in prompt.lower() and "selected_feature_paths" in prompt:
+        # Explore feature selection - look for various indicators  
+        elif ("selected_feature_paths" in prompt and
+              any(keyword in prompt.lower() for keyword in ["explore", "exploration", "diversity", "breadth"])):
             if is_logic_domain:
                 return json.dumps({
                     "all_selected_feature_paths": [
