@@ -125,6 +125,29 @@ class ImplementationController:
             logger.error(f"Error generating folder skeleton: {str(e)}")
             # Fallback: create basic structure
             return self._create_fallback_skeleton(capability_nodes)
+        
+    def _build_base_classes_prompt(self, common_patterns: List[Dict]) -> str:
+        """Build prompt for base classes generation."""
+        patterns_text = "\n".join([
+            f"- {pattern['name']}: {pattern['pattern']}" 
+            for pattern in common_patterns
+        ])
+        
+        return f"""Define minimal global base classes for shared patterns in this {self.config.target_language} project.
+
+Project Goal: {self.config.project_goal}
+
+Common Patterns Identified:
+{patterns_text}
+
+Requirements:
+- Create 1-3 base classes maximum
+- Use proper type hints and abstractions
+- Include comprehensive docstrings
+- Make classes extensible but focused
+- Follow {self.config.target_language} best practices
+
+Output: Complete code with base class definitions."""
             
     async def _assign_features_to_files(self, capability_graph: RPG, skeleton: FileSkeleton) -> Dict[str, List[str]]:
         """Assign leaf capability features to specific files."""
