@@ -49,7 +49,7 @@ class RPGEdge(BaseModel):
     note: Optional[str] = Field(None, description="Additional edge description")
     
     class Config:
-        allow_population_by_field_name = True
+        validate_by_name = True
         json_schema_extra = {
             "example": {
                 "from": "data-loader-123",
