@@ -91,8 +91,10 @@ class ProposalController:
             domain_filter=self.config.domain
         )
         
-        # LLM selection from retrieved features
+        # Build prompt for LLM
         exploit_prompt = self._build_exploit_prompt(similar_features, query_context)
+        
+        logger.info(f"Exploit prompt (first 200 chars): {exploit_prompt[:200]}")
         
         try:
             response = await self.llm_client.generate(
