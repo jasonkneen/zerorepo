@@ -116,11 +116,11 @@ async def get_available_models():
             {"id": "google/gemini-2.0-flash", "name": "Gemini 2.0 Flash (via OpenRouter)", "description": "Google's latest model through OpenRouter"},
             {"id": "meta-llama/llama-3.2-90b-instruct", "name": "Llama 3.2 90B", "description": "Meta's powerful open source model"}
         ],
-        "emergent": [
-            {"id": "gpt-4o-mini", "name": "GPT-4o Mini (Emergent)", "description": "Fast OpenAI model via Emergent key"},
-            {"id": "gpt-4o", "name": "GPT-4o (Emergent)", "description": "OpenAI flagship via Emergent key"},
-            {"id": "claude-3-5-sonnet-20241022", "name": "Claude 3.5 Sonnet (Emergent)", "description": "Anthropic model via Emergent key"},
-            {"id": "gemini-2.0-flash", "name": "Gemini 2.0 Flash (Emergent)", "description": "Google model via Emergent key"}
+        "github": [
+            {"id": "gpt-4o", "name": "GPT-4o (via GitHub Models)", "description": "OpenAI GPT-4o through GitHub Models"},
+            {"id": "gpt-4o-mini", "name": "GPT-4o Mini (via GitHub Models)", "description": "Fast OpenAI model through GitHub Models"},
+            {"id": "claude-3.5-sonnet", "name": "Claude 3.5 Sonnet (via GitHub Models)", "description": "Anthropic Claude through GitHub Models"},
+            {"id": "llama-3.1-70b-instruct", "name": "Llama 3.1 70B (via GitHub Models)", "description": "Meta Llama through GitHub Models"}
         ]
     }
 
@@ -488,10 +488,10 @@ async def get_available_models():
             {"id": "google/gemini-2.0-flash", "name": "Gemini 2.0 Flash (via OpenRouter)", "description": "Google's latest model through OpenRouter"},
             {"id": "meta-llama/llama-3.2-90b-instruct", "name": "Llama 3.2 90B", "description": "Meta's powerful open source model"}
         ],
-        "emergent": [
-            {"id": "gpt-4o-mini", "name": "GPT-4o Mini (Emergent)", "description": "Fast OpenAI model via Emergent key"},
-            {"id": "gpt-4o", "name": "GPT-4o (Emergent)", "description": "OpenAI flagship via Emergent key"},
-            {"id": "claude-3-5-sonnet-20241022", "name": "Claude 3.5 Sonnet (Emergent)", "description": "Anthropic model via Emergent key"},
-            {"id": "gemini-2.0-flash", "name": "Gemini 2.0 Flash (Emergent)", "description": "Google model via Emergent key"}
+        "github": [
+            {"id": "gpt-4o", "name": "GPT-4o (via GitHub Models)", "description": "OpenAI GPT-4o through GitHub Models"},
+            {"id": "gpt-4o-mini", "name": "GPT-4o Mini (via GitHub Models)", "description": "Fast OpenAI model through GitHub Models"},
+            {"id": "claude-3.5-sonnet", "name": "Claude 3.5 Sonnet (via GitHub Models)", "description": "Anthropic Claude through GitHub Models"},
+            {"id": "llama-3.1-70b-instruct", "name": "Llama 3.1 70B (via GitHub Models)", "description": "Meta Llama through GitHub Models"}
         ]
     }
