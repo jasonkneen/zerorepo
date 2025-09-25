@@ -1,0 +1,125 @@
+# ZeroRepo Prompt Templates
+# Distilled from paper Appendix A/B and optimized for consistency
+
+proposal_exploit_select:
+  name: "proposal_exploit_select"
+  description: "Exploit paths (retrieval-aligned selection)"
+  instructions: |
+    You expand a repository's feature tree with high-relevance paths.
+    Inputs:
+      - exploit_paths: list of {path, score}
+      - current_repo_paths: list of path strings already accepted
+      - project_goal: concise description
+    Rules:
+      - Select only from exploit_paths
+      - Maximize coverage of essential capabilities relevant to project_goal
+      - Avoid duplicates and generic infra (logging, config)
+    Output (strict JSON):
+      {"all_selected_feature_paths": ["a/b/c", "..."]}
+  sources: 
+    - "Appendix A.3 Exploit template"
+
+proposal_explore_select:
+  name: "proposal_explore_select"
+  description: "Explore paths (diversity injection)"
+  instructions: |
+    Select additional feature paths from a sampled exploration tree to improve breadth
+    without drifting from project_goal. Skip already-present paths.
+    Output JSON as in exploit template.
+  sources:
+    - "Appendix A.3 Exploration template"
+
+proposal_missing_features:
+  name: "proposal_missing_features"
+  description: "Missing features (LLM proposes gaps)"
+  instructions: |
+    Propose missing, implementable features (functions/classes/modules).
+    Provide a 3–5 level hierarchy with concrete algorithmic leaves.
+    Output (strict JSON):
+    {"missing_features":{"root":{"child":[ "leaf 1", "leaf 2"]}}}
+  sources:
+    - "Appendix A.3 Missing features"
+
+impl_folder_layout:
+  name: "impl_folder_layout"
+  description: "Folder skeleton mapping"
+  instructions: |
+    Map subtrees into a clean Python folder layout (flat or under 'src').
+    Include auxiliary folders as needed. Keep names pythonic.
+    Output JSON object with folders/files as described.
+  sources:
+    - "Appendix B.1 Raw skeleton mapping"
+
+impl_file_assignment:
+  name: "impl_file_assignment" 
+  description: "Feature→files assignment"
+  instructions: |
+    Assign remaining leaf features to .py files under a designated folder.
+    Group by semantics; introduce subfolders when >10 files per folder.
+    Output JSON: {"<path/to/file.py>": ["feature/path", ...], ...}
+  sources:
+    - "Appendix B.1 Mapping features to skeleton files"
+
+impl_base_classes:
+  name: "impl_base_classes"
+  description: "Base classes & shared data types"
+  instructions: |
+    Define minimal global abstractions (1–3) where many nodes share IO patterns.
+    Return code blocks with fully-typed base classes.
+  sources:
+    - "Appendix B.1 Converting subgraphs into base classes"
+
+impl_interfaces:
+  name: "impl_interfaces"
+  description: "Interfaces (stubs only)"
+  instructions: |
+    For each feature, define exactly one interface (function/class).
+    Provide imports, precise signature, and detailed docstring. Use 'pass' bodies.
+    Output: code blocks grouped by file.
+  sources:
+    - "Appendix B.1 Mapping features to interfaces"
+
+codegen_unit_tests:
+  name: "codegen_unit_tests"
+  description: "Unit tests from docstrings"
+  instructions: |
+    Given an interface stub (signature + docstring), write a deterministic pytest
+    unit test. Include realistic inputs/outputs aligned to stated types and edge cases.
+    Avoid network/filesystem unless specified. One test module per interface.
+  sources:
+    - "Section 4 Graph-Guided Test Validation"
+
+debug_localize_and_fix:
+  name: "debug_localize_and_fix"
+  description: "Graph-guided localization"
+  instructions: |
+    You are given RPG, the failing test, stack trace, and code.
+    Use:
+      1) functionality-based search (RPG-guided),
+      2) code view of interfaces,
+      3) dependency exploration (neighbors in RPG).
+    Produce a minimal fix patch and rationale.
+  sources:
+    - "Appendix C.1 Tools & C.2 Editing tools"
+
+# System prompts for consistency
+
+system_json_mode:
+  role: "system"
+  content: |
+    You are a precise software engineering assistant. Always respond with valid JSON when requested.
+    Use exact field names as specified. Be deterministic and avoid speculation.
+
+system_code_generation:
+  role: "system"  
+  content: |
+    You are an expert software engineer implementing clean, testable code.
+    Follow type hints, write comprehensive docstrings, handle edge cases.
+    Generate deterministic, well-structured implementations.
+
+system_graph_analysis:
+  role: "system"
+  content: |
+    You are analyzing Repository Planning Graphs (RPG) for code generation.
+    Use graph context to understand dependencies and relationships.
+    Provide targeted, graph-guided solutions.

@@ -1,0 +1,1 @@
+"""Evaluation harness for ZeroRepo system - RepoCraft-style metrics."""
