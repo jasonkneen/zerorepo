@@ -379,12 +379,19 @@ Output (strict JSON):
     def _parse_feature_response(self, response: str, source: str) -> List[FeaturePath]:
         """Parse LLM response into FeaturePath objects."""
         try:
-            data = json.loads(response.strip())
+            # Handle LLMResponse object
+            if hasattr(response, 'content'):
+                response_text = response.content
+            else:
+                response_text = response
+                
+            data = json.loads(response_text.strip())
             paths = data.get("all_selected_feature_paths", [])
             
             return [FeaturePath(path=path, score=0.8, source=source) for path in paths]
-        except:
+        except Exception as e:
             logger.error(f"Failed to parse {source} feature response: {response}")
+            logger.error(f"Parse error: {str(e)}")
             return []
             
     def _parse_missing_features_response(self, response: str) -> List[Dict]:
