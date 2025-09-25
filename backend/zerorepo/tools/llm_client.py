@@ -92,13 +92,8 @@ class LLMClient:
             # Create user message
             user_message = UserMessage(text=prompt)
             
-            # Send message synchronously in executor to avoid blocking the event loop
-            def _sync_llm_call():
-                import asyncio
-                return asyncio.run(chat.send_message(user_message))
-            
-            loop = asyncio.get_event_loop()
-            response = await loop.run_in_executor(None, _sync_llm_call)
+            # Send message directly - emergentintegrations is properly async
+            response = await chat.send_message(user_message)
             
             return LLMResponse(
                 content=response,
