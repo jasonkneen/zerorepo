@@ -117,6 +117,18 @@ const ZeroRepoInterface = () => {
         data: response.data,
         jobId: response.data.job_id
       });
+      
+      // Set up job tracking for live updates
+      setCurrentJob({
+        id: response.data.job_id,
+        status: "running"
+      });
+      
+      setJobProgress({
+        progress: 0,
+        current_stage: "Starting generation...",
+        status: "running"
+      });
     } catch (err) {
       setError(err.response?.data?.detail || "Generation failed");
     } finally {
