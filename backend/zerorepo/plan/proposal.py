@@ -441,8 +441,32 @@ Output (strict JSON):
             else:
                 response_text = response
                 
-            data = json.loads(response_text.strip())
-            return [data.get("missing_features", {})]
+            # Clean up response - remove markdown formatting if present
+            response_text = response_text.strip()
+            if response_text.startswith("```json"):
+                response_text = response_text[7:]
+            if response_text.endswith("```"):
+                response_text = response_text[:-3]
+            response_text = response_text.strip()
+            
+            # Handle case where response might be empty
+            if not response_text:
+                logger.warning("Empty response for missing features")
+                return []
+            
+            data = json.loads(response_text)
+            missing_features = data.get("missing_features", {})
+            
+            if not missing_features:
+                logger.warning(f"No missing features found in response: {data}")
+                return []
+                
+            return [missing_features]
+            
+        except json.JSONDecodeError as e:
+            logger.error(f"JSON decode error in missing features response: {str(e)}")
+            logger.error(f"Response content: {response_text[:500]}...")
+            return []
         except Exception as e:
             logger.error(f"Failed to parse missing features response: {response}")
             logger.error(f"Parse error: {str(e)}")
