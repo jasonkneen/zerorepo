@@ -159,7 +159,8 @@ const GenerationPage = ({ isDarkMode, setIsDarkMode }) => {
       const response = await axios.post(`${API}/zerorepo/plan`, {
         project_goal: projectGoal,
         domain: domain,
-        llm_model: "gpt-4o-mini",
+        llm_model: selectedModel,
+        llm_provider: selectedProvider,
         max_iterations: 2
       });
 
