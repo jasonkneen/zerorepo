@@ -368,6 +368,14 @@ class ImplementationController:
             for cap in capabilities
         ])
         
+        output_example = """{
+  "folders": [
+    {"name": "src/algorithms", "maps": ["ML Algorithms"]},
+    {"name": "src/data", "maps": ["Data Processing"]}
+  ],
+  "files": []
+}"""
+
         return f"""Map capability subtrees into a clean Python folder layout.
 
 Project Goal: {self.config.project_goal}
@@ -381,13 +389,7 @@ Include auxiliary folders (tests, config, data) as needed.
 Keep names pythonic and concise.
 
 Output (strict JSON):
-{{
-  "folders": [
-    {{"name": "src/algorithms", "maps": ["ML Algorithms"]}},
-    {{"name": "src/data", "maps": ["Data Processing"]}}
-  ],
-  "files": []
-}}"""
+{output_example}"""
 
     def _build_file_assignment_prompt(self, capability_groups: List[List[RPGNode]], skeleton: FileSkeleton) -> str:
         """Build prompt for assigning features to files."""
