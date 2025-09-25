@@ -283,12 +283,24 @@ class EmergentLLMClient:
             })
             
         # File assignment
-        elif ".py" in prompt and "Group" in prompt:
-            return json.dumps({
-                "src/algorithms/core.py": ["core/algorithms/sorting"],
-                "src/logic/solver.py": ["logic/problem_solving/constraint_satisfaction"],
-                "src/utils/helpers.py": ["utils/helpers/validation"]
-            })
+        elif ".py" in prompt and ("Group" in prompt or "assign" in prompt.lower()):
+            if "logic" in prompt.lower() or "constraint" in prompt.lower():
+                return json.dumps({
+                    "src/logic/solver.py": ["logic/inference/forward_chaining"],
+                    "src/algorithms/core.py": ["logic/representation/predicate_logic"]
+                })
+            elif "ml" in prompt.lower():
+                return json.dumps({
+                    "src/algorithms/regression.py": ["ml/algorithms/regression/linear"],
+                    "src/algorithms/classification.py": ["ml/algorithms/classification/logistic"],
+                    "src/data/preprocessing.py": ["ml/preprocessing/scaling"],
+                    "src/evaluation/metrics.py": ["ml/evaluation/metrics"]
+                })
+            else:
+                return json.dumps({
+                    "src/algorithms/core.py": ["ml/optimization/gradient_descent"],
+                    "src/utils/helpers.py": ["ml/utilities/data_splitter"]
+                })
             
         # Default JSON response
         return json.dumps({"status": "success", "message": "Mock response generated"})
