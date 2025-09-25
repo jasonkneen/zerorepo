@@ -401,13 +401,19 @@ Output (strict JSON):
             
         folders_text = "\n".join([f"- {f['name']}" for f in skeleton.folders])
         
+        groups_text_joined = "\n".join(groups_text)
+        output_example = """{
+  "src/algorithms/regression/linear.py": ["ml/algorithms/regression/linear"],
+  "src/algorithms/clustering/kmeans.py": ["ml/algorithms/clustering/kmeans"]
+}"""
+
         return f"""Assign capability features to .py files under the designated folders.
 
 Available Folders:
 {folders_text}
 
 Capability Groups to Assign:
-{"\n".join(groups_text)}
+{groups_text_joined}
 
 Rules:
 - Group by semantic similarity
@@ -416,10 +422,7 @@ Rules:
 - One file per logical component
 
 Output (strict JSON):
-{{
-  "src/algorithms/regression/linear.py": ["ml/algorithms/regression/linear"],
-  "src/algorithms/clustering/kmeans.py": ["ml/algorithms/clustering/kmeans"]
-}}"""
+{output_example}"""
 
     def _build_interfaces_prompt(self, file_node: RPGNode, capabilities: List[RPGNode], base_classes: Dict[str, str]) -> str:
         """Build prompt for interface generation."""
