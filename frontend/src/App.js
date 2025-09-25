@@ -44,8 +44,8 @@ const ZeroRepoInterface = () => {
       const response = await axios.post(`${API}/zerorepo/plan`, {
         project_goal: projectGoal,
         domain: domain,
-        llm_model: "gpt-4",
-        max_iterations: 15
+        llm_model: "gpt-4o-mini",  // Use faster model
+        max_iterations: 2  // Reduced from 15 for speed
       });
 
       setResult({
