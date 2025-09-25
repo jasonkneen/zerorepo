@@ -14,6 +14,41 @@ const ZeroRepoInterface = () => {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [demoResult, setDemoResult] = useState(null);
+  const [currentJob, setCurrentJob] = useState(null);
+  const [jobProgress, setJobProgress] = useState(null);
+
+  // Poll job status for live updates
+  useEffect(() => {
+    if (currentJob && currentJob.status === "running") {
+      const pollInterval = setInterval(async () => {
+        try {
+          const response = await axios.get(`${API}/zerorepo/jobs/${currentJob.id}`);
+          const jobData = response.data;
+          
+          setJobProgress(jobData);
+          
+          if (jobData.status === "completed" || jobData.status === "failed") {
+            clearInterval(pollInterval);
+            setIsGenerating(false);
+            setCurrentJob(null);
+            
+            if (jobData.status === "completed") {
+              setResult({
+                type: 'generate_complete',
+                data: jobData
+              });
+            } else {
+              setError(jobData.error || "Generation failed");
+            }
+          }
+        } catch (err) {
+          console.error("Polling error:", err);
+        }
+      }, 3000); // Poll every 3 seconds
+      
+      return () => clearInterval(pollInterval);
+    }
+  }, [currentJob]);
 
   const handleQuickDemo = async () => {
     setIsGenerating(true);
