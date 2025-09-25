@@ -204,8 +204,12 @@ Output: Complete code with base class definitions."""
                 max_tokens=1200
             )
             
+            if not response.success:
+                logger.error(f"LLM generation failed: {response.error}")
+                return {}
+            
             # Parse response into base class code
-            base_classes = self._parse_base_classes_response(response)
+            base_classes = self._parse_base_classes_response(response.content)
             return base_classes
             
         except Exception as e:
