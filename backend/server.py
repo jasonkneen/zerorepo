@@ -420,3 +420,38 @@ async def health_check():
         "timestamp": datetime.utcnow(),
         "version": "1.0.0"
     }
+
+@api_router.get("/models")
+async def get_available_models():
+    """Get available models for each provider."""
+    return {
+        "openai": [
+            {"id": "gpt-4o", "name": "GPT-4o", "description": "Most capable model, best for complex tasks"},
+            {"id": "gpt-4o-mini", "name": "GPT-4o Mini", "description": "Fast and efficient, good for most tasks"},
+            {"id": "gpt-4", "name": "GPT-4", "description": "Previous generation flagship model"},
+            {"id": "gpt-4-turbo", "name": "GPT-4 Turbo", "description": "Faster GPT-4 with updated knowledge"},
+            {"id": "gpt-3.5-turbo", "name": "GPT-3.5 Turbo", "description": "Fast and cost-effective"}
+        ],
+        "anthropic": [
+            {"id": "claude-3-5-sonnet-20241022", "name": "Claude 3.5 Sonnet", "description": "Most capable Claude model"},
+            {"id": "claude-3-5-haiku-20241022", "name": "Claude 3.5 Haiku", "description": "Fast and efficient Claude model"},
+            {"id": "claude-3-opus-20240229", "name": "Claude 3 Opus", "description": "Previous flagship Claude model"}
+        ],
+        "google": [
+            {"id": "gemini-2.0-flash", "name": "Gemini 2.0 Flash", "description": "Latest Gemini model with fast performance"},
+            {"id": "gemini-1.5-pro", "name": "Gemini 1.5 Pro", "description": "Capable Gemini model for complex tasks"},
+            {"id": "gemini-1.5-flash", "name": "Gemini 1.5 Flash", "description": "Fast Gemini model for quick tasks"}
+        ],
+        "openrouter": [
+            {"id": "openai/gpt-4o", "name": "GPT-4o (via OpenRouter)", "description": "OpenAI's latest model through OpenRouter"},
+            {"id": "anthropic/claude-3.5-sonnet", "name": "Claude 3.5 Sonnet (via OpenRouter)", "description": "Anthropic's latest model through OpenRouter"},
+            {"id": "google/gemini-2.0-flash", "name": "Gemini 2.0 Flash (via OpenRouter)", "description": "Google's latest model through OpenRouter"},
+            {"id": "meta-llama/llama-3.2-90b-instruct", "name": "Llama 3.2 90B", "description": "Meta's powerful open source model"}
+        ],
+        "emergent": [
+            {"id": "gpt-4o-mini", "name": "GPT-4o Mini (Emergent)", "description": "Fast OpenAI model via Emergent key"},
+            {"id": "gpt-4o", "name": "GPT-4o (Emergent)", "description": "OpenAI flagship via Emergent key"},
+            {"id": "claude-3-5-sonnet-20241022", "name": "Claude 3.5 Sonnet (Emergent)", "description": "Anthropic model via Emergent key"},
+            {"id": "gemini-2.0-flash", "name": "Gemini 2.0 Flash (Emergent)", "description": "Google model via Emergent key"}
+        ]
+    }
