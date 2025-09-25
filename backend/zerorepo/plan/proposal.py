@@ -105,7 +105,9 @@ class ProposalController:
                 logger.error(f"LLM generation failed: {response.error}")
                 return []
             
+            logger.info(f"Exploit response: {response.content[:200]}...")
             selected_paths = self._parse_feature_response(response.content, "exploit")
+            logger.info(f"Parsed exploit paths: {len(selected_paths)}")
             
             # Score based on retrieval relevance
             for path in selected_paths:
