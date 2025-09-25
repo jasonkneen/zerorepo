@@ -196,18 +196,22 @@ class EmergentLLMClient:
     def _generate_mock_json_response(self, prompt: str) -> str:
         """Generate mock JSON responses based on prompt patterns."""
         
+        # Detect domain from prompt
+        is_ml_domain = any(keyword in prompt.lower() for keyword in ["machine", "ml", "learning", "algorithm", "regression"])
+        is_logic_domain = any(keyword in prompt.lower() for keyword in ["logic", "constraint", "solver", "calculator"])
+        
         # Exploit feature selection
         if "exploit" in prompt.lower() and "selected_feature_paths" in prompt:
-            if "logic" in prompt.lower() or "problem" in prompt.lower():
+            if is_logic_domain:
                 return json.dumps({
                     "all_selected_feature_paths": [
                         "logic/problem_solving/constraint_satisfaction",
-                        "logic/reasoning/boolean_logic",
+                        "logic/reasoning/boolean_logic", 
                         "algorithms/search/backtracking",
                         "data_structures/constraint_graph"
                     ]
                 })
-            elif "ml" in prompt.lower() or "machine" in prompt.lower():
+            elif is_ml_domain:
                 return json.dumps({
                     "all_selected_feature_paths": [
                         "ml/algorithms/regression/linear",
@@ -217,24 +221,26 @@ class EmergentLLMClient:
                     ]
                 })
             else:
+                # Default to core algorithms
                 return json.dumps({
                     "all_selected_feature_paths": [
                         "core/algorithms/sorting",
                         "core/data_structures/array",
-                        "utils/helpers/validation"
+                        "utils/helpers/validation",
+                        "core/math/calculator"
                     ]
                 })
             
         # Explore feature selection
         elif "explore" in prompt.lower() and "selected_feature_paths" in prompt:
-            if "logic" in prompt.lower():
+            if is_logic_domain:
                 return json.dumps({
                     "all_selected_feature_paths": [
                         "logic/solvers/sat_solver",
                         "algorithms/optimization/genetic"
                     ]
                 })
-            elif "ml" in prompt.lower():
+            elif is_ml_domain:
                 return json.dumps({
                     "all_selected_feature_paths": [
                         "ml/algorithms/clustering/kmeans",
@@ -251,7 +257,7 @@ class EmergentLLMClient:
             
         # Missing features
         elif "missing_features" in prompt:
-            if "logic" in prompt.lower():
+            if is_logic_domain:
                 return json.dumps({
                     "missing_features": {
                         "logic": {
@@ -260,7 +266,7 @@ class EmergentLLMClient:
                         }
                     }
                 })
-            else:
+            elif is_ml_domain:
                 return json.dumps({
                     "missing_features": {
                         "ml": {
@@ -269,27 +275,56 @@ class EmergentLLMClient:
                         }
                     }
                 })
+            else:
+                return json.dumps({
+                    "missing_features": {
+                        "core": {
+                            "math": ["basic_operations", "advanced_functions"],
+                            "utilities": ["input_validator", "output_formatter"]
+                        }
+                    }
+                })
             
         # Folder skeleton
         elif "folders" in prompt and "maps" in prompt:
-            return json.dumps({
-                "folders": [
-                    {"name": "src/algorithms", "maps": ["Core Algorithms"]},
-                    {"name": "src/data", "maps": ["Data Processing"]},
-                    {"name": "src/logic", "maps": ["Logic Components"]},
-                    {"name": "tests", "maps": ["Unit Tests"]}
-                ],
-                "files": []
-            })
-            
-        # File assignment
-        elif ".py" in prompt and ("Group" in prompt or "assign" in prompt.lower()):
-            if "logic" in prompt.lower() or "constraint" in prompt.lower():
+            if is_logic_domain:
                 return json.dumps({
-                    "src/logic/solver.py": ["logic/inference/forward_chaining"],
-                    "src/algorithms/core.py": ["logic/representation/predicate_logic"]
+                    "folders": [
+                        {"name": "src/logic", "maps": ["Logic Components"]},
+                        {"name": "src/algorithms", "maps": ["Core Algorithms"]},
+                        {"name": "tests", "maps": ["Unit Tests"]}
+                    ],
+                    "files": []
                 })
-            elif "ml" in prompt.lower():
+            elif is_ml_domain:
+                return json.dumps({
+                    "folders": [
+                        {"name": "src/algorithms", "maps": ["ML Algorithms"]},
+                        {"name": "src/data", "maps": ["Data Processing"]},
+                        {"name": "src/evaluation", "maps": ["Model Evaluation"]},
+                        {"name": "tests", "maps": ["Unit Tests"]}
+                    ],
+                    "files": []
+                })
+            else:
+                return json.dumps({
+                    "folders": [
+                        {"name": "src/core", "maps": ["Core Components"]},
+                        {"name": "src/utils", "maps": ["Utilities"]},
+                        {"name": "tests", "maps": ["Unit Tests"]}
+                    ],
+                    "files": []
+                })
+            
+        # File assignment - MUST be consistent with the capabilities generated above
+        elif ".py" in prompt and ("Group" in prompt or "assign" in prompt.lower()):
+            if is_logic_domain:
+                return json.dumps({
+                    "src/logic/solver.py": ["logic/problem_solving/constraint_satisfaction"],
+                    "src/algorithms/search.py": ["algorithms/search/backtracking"],
+                    "src/logic/reasoning.py": ["logic/reasoning/boolean_logic"]
+                })
+            elif is_ml_domain:
                 return json.dumps({
                     "src/algorithms/regression.py": ["ml/algorithms/regression/linear"],
                     "src/algorithms/classification.py": ["ml/algorithms/classification/logistic"],
@@ -297,9 +332,11 @@ class EmergentLLMClient:
                     "src/evaluation/metrics.py": ["ml/evaluation/metrics"]
                 })
             else:
+                # Default to core features that match the exploit selection above
                 return json.dumps({
-                    "src/algorithms/core.py": ["ml/optimization/gradient_descent"],
-                    "src/utils/helpers.py": ["ml/utilities/data_splitter"]
+                    "src/core/algorithms.py": ["core/algorithms/sorting"],
+                    "src/core/math.py": ["core/math/calculator"],
+                    "src/utils/helpers.py": ["utils/helpers/validation"]
                 })
             
         # Default JSON response
