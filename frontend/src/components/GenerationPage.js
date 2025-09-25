@@ -557,19 +557,21 @@ const GenerationPage = ({ isDarkMode, setIsDarkMode }) => {
               <label className={`block text-sm font-semibold ${themeClasses.text} mb-3 flex items-center`}>
                 <Cpu className="h-4 w-4 mr-2" />
                 AI Model
-                {selectedProvider !== "emergent" && (
-                  <span className={`ml-2 text-xs ${themeClasses.textMuted}`}>
-                    (Requires API key in settings)
+                {!hasApiKey(selectedProvider) && (
+                  <span className={`ml-2 text-xs ${themeClasses.errorText} font-semibold`}>
+                    (Requires API key in settings ⚠️)
                   </span>
                 )}
               </label>
               <select
                 value={selectedModel}
                 onChange={(e) => setSelectedModel(e.target.value)}
+                disabled={!hasApiKey(selectedProvider)}
                 className={`
                   w-full p-4 border rounded-2xl shadow-lg transition-all duration-300
                   ${themeClasses.input} ${themeClasses.inputFocus} focus:ring-2 focus:ring-offset-2
                   ${isDarkMode ? "focus:ring-offset-zinc-900" : "focus:ring-offset-white"}
+                  disabled:opacity-50 disabled:cursor-not-allowed
                 `}
               >
                 {getCurrentModels().map(model => (
