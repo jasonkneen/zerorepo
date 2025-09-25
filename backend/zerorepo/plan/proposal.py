@@ -163,29 +163,29 @@ class ProposalController:
         missing_prompt = self._build_missing_prompt(current_features_summary, iteration)
         
         try:
-            response = await self.llm_client.generate(
+            response_json = await self.llm_client.generate_json(
                 prompt=missing_prompt,
                 temperature=0.4,  # Creative but focused
                 max_tokens=600
             )
             
-            if not response.success:
-                logger.error(f"LLM generation failed: {response.error}")
-                return []
+            missing_features_data = response_json.get("missing_features", {})
             
-            missing_features = self._parse_missing_features_response(response.content)
+            if not missing_features_data:
+                logger.warning("No missing features in response")
+                return []
             
             # Convert to FeaturePath objects
             feature_paths = []
-            for feature_hierarchy in missing_features:
-                paths = self._flatten_feature_hierarchy(feature_hierarchy)
-                for path in paths:
-                    feature_paths.append(FeaturePath(
-                        path=path,
-                        score=0.5,  # Medium confidence for synthesized features
-                        source="missing"
-                    ))
-                    
+            paths = self._flatten_feature_hierarchy(missing_features_data)
+            for path in paths:
+                feature_paths.append(FeaturePath(
+                    path=path,
+                    score=0.5,  # Medium confidence for synthesized features
+                    source="missing"
+                ))
+                
+            logger.info(f"Missing phase generated {len(feature_paths)} features")
             return feature_paths
             
         except Exception as e:
