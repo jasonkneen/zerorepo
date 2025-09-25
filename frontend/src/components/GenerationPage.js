@@ -190,6 +190,12 @@ const GenerationPage = ({ isDarkMode, setIsDarkMode }) => {
       return;
     }
 
+    const apiConfig = getApiConfig();
+    if (!apiConfig) {
+      setError(`Please configure API key for ${selectedProvider} in settings`);
+      return;
+    }
+
     setIsPlanning(true);
     setError(null);
     setResult(null);
@@ -198,8 +204,9 @@ const GenerationPage = ({ isDarkMode, setIsDarkMode }) => {
       const response = await axios.post(`${API}/zerorepo/plan`, {
         project_goal: projectGoal,
         domain: domain,
-        llm_model: selectedModel,
-        llm_provider: selectedProvider,
+        llm_provider: apiConfig.provider,
+        llm_model: apiConfig.model,
+        api_key: apiConfig.api_key,
         max_iterations: 2
       });
 
@@ -220,6 +227,12 @@ const GenerationPage = ({ isDarkMode, setIsDarkMode }) => {
       return;
     }
 
+    const apiConfig = getApiConfig();
+    if (!apiConfig) {
+      setError(`Please configure API key for ${selectedProvider} in settings`);
+      return;
+    }
+
     setIsGenerating(true);
     setError(null);
     setResult(null);
@@ -229,8 +242,9 @@ const GenerationPage = ({ isDarkMode, setIsDarkMode }) => {
       const response = await axios.post(`${API}/zerorepo/generate`, {
         project_goal: projectGoal,
         domain: domain,
-        llm_model: selectedModel,
-        llm_provider: selectedProvider,
+        llm_provider: apiConfig.provider,
+        llm_model: apiConfig.model,
+        api_key: apiConfig.api_key,
         max_iterations: 3
       });
 
