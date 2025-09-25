@@ -137,17 +137,23 @@ const ZeroRepoInterface = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white p-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-            ZeroRepo
-          </h1>
-          <p className="text-xl text-gray-300 mb-2">Graph-Driven Repository Generation</p>
-          <p className="text-sm text-gray-400">
-            AI-powered system that plans, designs, and generates complete software repositories
-          </p>
+    <div className="min-h-screen bg-white text-black">
+      {/* Header */}
+      <div className="border-b border-gray-200">
+        <div className="max-w-6xl mx-auto px-4 py-6">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold tracking-tight text-black mb-2">
+              ZeroRepo
+            </h1>
+            <p className="text-lg text-gray-600 mb-1">Graph-Driven Repository Generation</p>
+            <p className="text-sm text-gray-500">
+              AI-powered system that plans, designs, and generates complete software repositories
+            </p>
+          </div>
         </div>
+      </div>
+
+      <div className="max-w-4xl mx-auto px-4 py-8">
 
         {/* Quick Demo Section */}
         <div className="bg-slate-800 rounded-lg p-6 mb-8 border border-slate-700">
