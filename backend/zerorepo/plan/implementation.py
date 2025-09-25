@@ -114,7 +114,11 @@ class ImplementationController:
                 max_tokens=800
             )
             
-            skeleton_data = json.loads(response.strip())
+            if not response.success:
+                logger.error(f"LLM generation failed: {response.error}")
+                return self._create_fallback_skeleton(capability_nodes)
+            
+            skeleton_data = json.loads(response.content.strip())
             return FileSkeleton(**skeleton_data)
             
         except Exception as e:
