@@ -401,10 +401,32 @@ Output (strict JSON):
             else:
                 response_text = response
                 
-            data = json.loads(response_text.strip())
+            # Clean up response - remove markdown formatting if present
+            response_text = response_text.strip()
+            if response_text.startswith("```json"):
+                response_text = response_text[7:]
+            if response_text.endswith("```"):
+                response_text = response_text[:-3]
+            response_text = response_text.strip()
+            
+            # Handle case where response might be empty or just whitespace
+            if not response_text:
+                logger.warning(f"Empty response for {source} feature selection")
+                return []
+            
+            data = json.loads(response_text)
             paths = data.get("all_selected_feature_paths", [])
             
+            if not paths:
+                logger.warning(f"No feature paths found in {source} response: {data}")
+                return []
+            
             return [FeaturePath(path=path, score=0.8, source=source) for path in paths]
+            
+        except json.JSONDecodeError as e:
+            logger.error(f"JSON decode error in {source} feature response: {str(e)}")
+            logger.error(f"Response content: {response_text[:500]}...")
+            return []
         except Exception as e:
             logger.error(f"Failed to parse {source} feature response: {response}")
             logger.error(f"Parse error: {str(e)}")
