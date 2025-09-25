@@ -23,6 +23,8 @@ const API = `${BACKEND_URL}/api`;
 const GenerationPage = ({ isDarkMode, setIsDarkMode }) => {
   const [projectGoal, setProjectGoal] = useState("");
   const [domain, setDomain] = useState("ml");
+  const [selectedProvider, setSelectedProvider] = useState("emergent");
+  const [selectedModel, setSelectedModel] = useState("gpt-4o-mini");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isPlanning, setIsPlanning] = useState(false);
   const [result, setResult] = useState(null);
@@ -32,6 +34,39 @@ const GenerationPage = ({ isDarkMode, setIsDarkMode }) => {
   const [jobProgress, setJobProgress] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
   const [generatedFiles, setGeneratedFiles] = useState([]);
+  const [availableModels, setAvailableModels] = useState({});
+  const [apiKeys, setApiKeys] = useState({
+    openai: "",
+    anthropic: "",
+    google: "",
+    openrouter: ""
+  });
+
+  // Load available models on component mount
+  useEffect(() => {
+    const loadModels = async () => {
+      try {
+        const response = await axios.get(`${API}/models`);
+        setAvailableModels(response.data);
+      } catch (err) {
+        console.error("Failed to load models:", err);
+      }
+    };
+    loadModels();
+  }, []);
+
+  // Update available models when provider changes
+  const getCurrentModels = () => {
+    return availableModels[selectedProvider] || [];
+  };
+
+  // Update selected model when provider changes
+  useEffect(() => {
+    const models = getCurrentModels();
+    if (models.length > 0 && !models.find(m => m.id === selectedModel)) {
+      setSelectedModel(models[0].id);
+    }
+  }, [selectedProvider, availableModels]);
 
   const themeClasses = {
     bg: isDarkMode ? "bg-zinc-900" : "bg-white",
