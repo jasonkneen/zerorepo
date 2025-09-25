@@ -183,6 +183,7 @@ async def get_generation_job(job_id: str):
             "project_goal": job["project_goal"],
             "domain": job["domain"],
             "progress": job["progress"],
+            "current_stage": job.get("current_stage", "Unknown"),
             "result": job.get("result"),
             "error": job.get("error"),
             "created_at": job["created_at"],
