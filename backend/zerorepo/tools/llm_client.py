@@ -93,7 +93,10 @@ class LLMClient:
             user_message = UserMessage(text=prompt)
             
             # Send message and get response
-            response = await chat.send_message(user_message)
+            # Note: emergentintegrations might not be fully async, so we run in executor
+            import asyncio
+            loop = asyncio.get_event_loop()
+            response = await loop.run_in_executor(None, lambda: asyncio.run(chat.send_message(user_message)))
             
             return LLMResponse(
                 content=response,
