@@ -270,7 +270,7 @@ async def quick_demo():
 # Background task functions
 
 async def run_generation_job(job_id: str, request: GenerateRepositoryRequest):
-    """Background task to run repository generation."""
+    """Background task to run repository generation with detailed progress updates."""
     try:
         # Update status to running
         await db.generation_jobs.update_one(
@@ -278,39 +278,79 @@ async def run_generation_job(job_id: str, request: GenerateRepositoryRequest):
             {
                 "$set": {
                     "status": "running",
-                    "progress": 10,
+                    "progress": 5,
+                    "current_stage": "Initializing",
                     "updated_at": datetime.utcnow()
                 }
             }
         )
         
-        # Create output directory (in practice, might use cloud storage)
+        # Create output directory
         output_dir = f"/tmp/zerorepo_output/{job_id}"
         os.makedirs(output_dir, exist_ok=True)
         
-        # Update progress
+        # Stage A: Proposal Construction
         await db.generation_jobs.update_one(
             {"id": job_id},
-            {"$set": {"progress": 30, "updated_at": datetime.utcnow()}}
+            {"$set": {"progress": 15, "current_stage": "Stage A: Planning Repository Structure", "updated_at": datetime.utcnow()}}
         )
         
-        # Run generation
-        result = await generate_repository(
+        config = ProjectConfig(
             project_goal=request.project_goal,
-            output_dir=output_dir,
             domain=request.domain,
             llm_model=request.llm_model,
-            max_iterations=request.max_iterations,
+            max_iterations=min(request.max_iterations, 3)  # Cap for speed
+        )
+        
+        orchestrator = ZeroRepoOrchestrator(
+            config,
             emergent_api_key=os.environ.get('EMERGENT_LLM_KEY', 'sk-emergent-b99311bB564934e547')
         )
         
-        # Update with results
+        # Proposal stage with progress updates
+        await db.generation_jobs.update_one(
+            {"id": job_id},
+            {"$set": {"progress": 25, "current_stage": "Stage A: Analyzing Features with AI", "updated_at": datetime.utcnow()}}
+        )
+        
+        capability_graph, feature_paths = await orchestrator.run_proposal_stage()
+        
+        await db.generation_jobs.update_one(
+            {"id": job_id},
+            {"$set": {"progress": 50, "current_stage": f"Stage A Complete: {len(feature_paths)} features planned", "updated_at": datetime.utcnow()}}
+        )
+        
+        # Stage B: Implementation  
+        await db.generation_jobs.update_one(
+            {"id": job_id},
+            {"$set": {"progress": 60, "current_stage": "Stage B: Designing File Structure", "updated_at": datetime.utcnow()}}
+        )
+        
+        complete_graph, interfaces = await orchestrator.implementation_controller.build_implementation_graph(capability_graph)
+        
+        await db.generation_jobs.update_one(
+            {"id": job_id},
+            {"$set": {"progress": 75, "current_stage": f"Stage B Complete: {len(interfaces)} interfaces designed", "updated_at": datetime.utcnow()}}
+        )
+        
+        # Stage C: Code Generation
+        await db.generation_jobs.update_one(
+            {"id": job_id},
+            {"$set": {"progress": 85, "current_stage": "Stage C: Generating Code with AI", "updated_at": datetime.utcnow()}}
+        )
+        
+        result = await orchestrator.code_generator.generate_repository(
+            complete_graph, interfaces, output_dir
+        )
+        
+        # Final results
         await db.generation_jobs.update_one(
             {"id": job_id},
             {
                 "$set": {
                     "status": "completed" if result.success else "failed",
                     "progress": 100,
+                    "current_stage": "Complete" if result.success else "Failed",
                     "result": result.dict() if result.success else None,
                     "error": result.errors[0] if result.errors else None,
                     "updated_at": datetime.utcnow()
@@ -318,6 +358,7 @@ async def run_generation_job(job_id: str, request: GenerateRepositoryRequest):
             }
         )
         
+        await orchestrator.cleanup()
         logging.info(f"Generation job {job_id} completed: {result.success}")
         
     except Exception as e:
@@ -329,6 +370,8 @@ async def run_generation_job(job_id: str, request: GenerateRepositoryRequest):
             {
                 "$set": {
                     "status": "failed",
+                    "progress": 100,
+                    "current_stage": "Failed",
                     "error": str(e),
                     "updated_at": datetime.utcnow()
                 }
