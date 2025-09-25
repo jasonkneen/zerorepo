@@ -457,23 +457,73 @@ const GenerationPage = ({ isDarkMode, setIsDarkMode }) => {
               />
             </div>
 
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <label className={`block text-sm font-semibold ${themeClasses.text} mb-3`}>
+                  Domain
+                </label>
+                <select
+                  value={domain}
+                  onChange={(e) => setDomain(e.target.value)}
+                  className={`
+                    w-full p-4 border rounded-2xl shadow-lg transition-all duration-300
+                    ${themeClasses.input} ${themeClasses.inputFocus} focus:ring-2 focus:ring-offset-2
+                    ${isDarkMode ? "focus:ring-offset-zinc-900" : "focus:ring-offset-white"}
+                  `}
+                >
+                  <option value="ml">Machine Learning</option>
+                  <option value="web">Web Development</option>
+                  <option value="data">Data Processing</option>
+                  <option value="general">General</option>
+                </select>
+              </div>
+
+              <div>
+                <label className={`block text-sm font-semibold ${themeClasses.text} mb-3`}>
+                  AI Provider
+                </label>
+                <select
+                  value={selectedProvider}
+                  onChange={(e) => setSelectedProvider(e.target.value)}
+                  className={`
+                    w-full p-4 border rounded-2xl shadow-lg transition-all duration-300
+                    ${themeClasses.input} ${themeClasses.inputFocus} focus:ring-2 focus:ring-offset-2
+                    ${isDarkMode ? "focus:ring-offset-zinc-900" : "focus:ring-offset-white"}
+                  `}
+                >
+                  <option value="emergent">Emergent (Unified)</option>
+                  <option value="openai">OpenAI</option>
+                  <option value="anthropic">Anthropic</option>
+                  <option value="google">Google/Gemini</option>
+                  <option value="openrouter">OpenRouter</option>
+                </select>
+              </div>
+            </div>
+
             <div>
-              <label className={`block text-sm font-semibold ${themeClasses.text} mb-3`}>
-                Domain
+              <label className={`block text-sm font-semibold ${themeClasses.text} mb-3 flex items-center`}>
+                <Cpu className="h-4 w-4 mr-2" />
+                AI Model
+                {selectedProvider !== "emergent" && (
+                  <span className={`ml-2 text-xs ${themeClasses.textMuted}`}>
+                    (Requires API key in settings)
+                  </span>
+                )}
               </label>
               <select
-                value={domain}
-                onChange={(e) => setDomain(e.target.value)}
+                value={selectedModel}
+                onChange={(e) => setSelectedModel(e.target.value)}
                 className={`
                   w-full p-4 border rounded-2xl shadow-lg transition-all duration-300
                   ${themeClasses.input} ${themeClasses.inputFocus} focus:ring-2 focus:ring-offset-2
                   ${isDarkMode ? "focus:ring-offset-zinc-900" : "focus:ring-offset-white"}
                 `}
               >
-                <option value="ml">Machine Learning</option>
-                <option value="web">Web Development</option>
-                <option value="data">Data Processing</option>
-                <option value="general">General</option>
+                {getCurrentModels().map(model => (
+                  <option key={model.id} value={model.id}>
+                    {model.name} - {model.description}
+                  </option>
+                ))}
               </select>
             </div>
 
