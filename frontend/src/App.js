@@ -405,50 +405,50 @@ const ZeroRepoInterface = () => {
 
         {/* Error Display */}
         {error && (
-          <div className="mt-8 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <h3 className="font-semibold text-red-800 mb-2">Error</h3>
-            <p className="text-red-700">{error}</p>
+          <div className={`mt-8 p-6 rounded-3xl shadow-xl ${themeClasses.errorBg} border`}>
+            <h3 className={`font-bold text-lg ${themeClasses.errorText} mb-3`}>Error</h3>
+            <p className={themeClasses.errorText}>{error}</p>
           </div>
         )}
 
         {/* Results Section */}
         {result && (
-          <div className="mt-8 border border-gray-200 rounded-lg p-6 bg-white">
-            <h3 className="text-lg font-semibold text-black mb-4">
+          <div className={`mt-8 ${themeClasses.cardBg} ${themeClasses.cardBorder} border rounded-3xl p-8 shadow-2xl`}>
+            <h3 className="text-xl font-bold mb-6">
               {result.type === 'plan' ? 'Planning Results' : 'Generation Started'}
             </h3>
             
             {result.type === 'plan' && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="text-center p-4 bg-gray-50 border border-gray-200 rounded-md">
-                    <div className="text-2xl font-bold text-black">
+              <div className="space-y-6">
+                <div className="grid grid-cols-3 gap-6">
+                  <div className={`text-center p-6 ${themeClasses.cardBg} ${themeClasses.cardBorder} border rounded-2xl shadow-xl`}>
+                    <div className="text-3xl font-bold mb-2">
                       {result.data.metrics.total_features}
                     </div>
-                    <div className="text-sm text-gray-600">Features</div>
+                    <div className={`text-sm font-medium ${themeClasses.textSecondary}`}>Features</div>
                   </div>
-                  <div className="text-center p-4 bg-gray-50 border border-gray-200 rounded-md">
-                    <div className="text-2xl font-bold text-black">
+                  <div className={`text-center p-6 ${themeClasses.cardBg} ${themeClasses.cardBorder} border rounded-2xl shadow-xl`}>
+                    <div className="text-3xl font-bold mb-2">
                       {result.data.metrics.total_nodes}
                     </div>
-                    <div className="text-sm text-gray-600">Graph Nodes</div>
+                    <div className={`text-sm font-medium ${themeClasses.textSecondary}`}>Graph Nodes</div>
                   </div>
-                  <div className="text-center p-4 bg-gray-50 border border-gray-200 rounded-md">
-                    <div className="text-2xl font-bold text-black">
+                  <div className={`text-center p-6 ${themeClasses.cardBg} ${themeClasses.cardBorder} border rounded-2xl shadow-xl`}>
+                    <div className="text-3xl font-bold mb-2">
                       {result.data.metrics.total_edges}
                     </div>
-                    <div className="text-sm text-gray-600">Connections</div>
+                    <div className={`text-sm font-medium ${themeClasses.textSecondary}`}>Connections</div>
                   </div>
                 </div>
                 
                 {result.data.feature_paths && result.data.feature_paths.length > 0 && (
                   <div>
-                    <h4 className="font-medium text-black mb-3">Sample Feature Paths</h4>
-                    <div className="bg-gray-50 border border-gray-200 p-4 rounded-md text-xs font-mono max-h-48 overflow-y-auto">
+                    <h4 className="font-semibold text-lg mb-4">Sample Feature Paths</h4>
+                    <div className={`${themeClasses.cardBg} ${themeClasses.cardBorder} border p-6 rounded-2xl text-sm font-mono max-h-64 overflow-y-auto shadow-inner space-y-2`}>
                       {result.data.feature_paths.slice(0, 12).map((fp, idx) => (
                         <div key={idx} className="flex justify-between py-1">
-                          <span className="text-gray-900">{fp.path}</span>
-                          <span className="text-gray-500">({fp.source})</span>
+                          <span className={themeClasses.text}>{fp.path}</span>
+                          <span className={`${themeClasses.textMuted} text-xs`}>({fp.source})</span>
                         </div>
                       ))}
                     </div>
