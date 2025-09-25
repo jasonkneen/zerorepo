@@ -1,6 +1,6 @@
 """
 LLM Client for ZeroRepo system using Emergent LLM key.
-Supports OpenAI, Anthropic, and Google models through unified interface.
+Real implementation using emergentintegrations library.
 """
 
 import os
@@ -9,6 +9,11 @@ import json
 import logging
 from typing import Optional, Dict, Any, List
 from dataclasses import dataclass
+from emergentintegrations.llm.chat import LlmChat, UserMessage
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 
@@ -25,27 +30,21 @@ class LLMResponse:
 
 class LLMClient:
     """
-    Unified LLM client supporting multiple providers via Emergent LLM key.
+    Real LLM client using Emergent integrations for OpenAI, Anthropic, and Google models.
     """
     
-    def __init__(self, api_key: str, default_model: str = "gpt-4"):
+    def __init__(self, api_key: str, default_model: str = "gpt-4o-mini"):
         self.api_key = api_key
         self.default_model = default_model
-        self._client = None
-        self._setup_client()
+        self.session_counter = 0
         
-    def _setup_client(self):
-        """Setup the appropriate client based on model."""
-        try:
-            # Import emergent integrations for unified LLM access
-            # This would be the emergent integrations library
-            # For now, we'll use a simplified approach
-            self._client = EmergentLLMClient(self.api_key)
-            logger.info(f"LLM Client initialized with model: {self.default_model}")
-        except Exception as e:
-            logger.error(f"Failed to initialize LLM client: {str(e)}")
-            raise
-            
+        logger.info(f"LLM Client initialized with model: {default_model}")
+        
+    def _get_session_id(self) -> str:
+        """Generate unique session ID for each request."""
+        self.session_counter += 1
+        return f"zerorepo-session-{self.session_counter}"
+        
     async def generate(
         self,
         prompt: str,
@@ -70,24 +69,40 @@ class LLMClient:
         model = model or self.default_model
         
         try:
-            # Build messages
-            messages = []
-            if system_prompt:
-                messages.append({"role": "system", "content": system_prompt})
-            messages.append({"role": "user", "content": prompt})
+            # Create chat instance
+            system_message = system_prompt or "You are a helpful assistant that provides precise, well-structured responses."
             
-            # Make API call
-            response = await self._client.generate(
-                messages=messages,
-                model=model,
-                temperature=temperature,
-                max_tokens=max_tokens
+            chat = LlmChat(
+                api_key=self.api_key,
+                session_id=self._get_session_id(),
+                system_message=system_message
             )
             
+            # Configure model based on the model name
+            if model.startswith("gpt") or model.startswith("o1"):
+                chat = chat.with_model("openai", model)
+            elif model.startswith("claude"):
+                chat = chat.with_model("anthropic", model)
+            elif model.startswith("gemini"):
+                chat = chat.with_model("gemini", model)
+            else:
+                # Default to OpenAI
+                chat = chat.with_model("openai", "gpt-4o-mini")
+            
+            # Create user message
+            user_message = UserMessage(text=prompt)
+            
+            # Send message and get response
+            response = await chat.send_message(user_message)
+            
             return LLMResponse(
-                content=response.get("content", ""),
+                content=response,
                 model=model,
-                usage=response.get("usage", {}),
+                usage={
+                    "prompt_tokens": len(prompt.split()),
+                    "completion_tokens": len(response.split()),
+                    "total_tokens": len(prompt.split()) + len(response.split())
+                },
                 success=True
             )
             
@@ -122,18 +137,30 @@ class LLMClient:
         Returns:
             Parsed JSON response
         """
+        # Add JSON formatting instruction to prompt
+        json_prompt = f"{prompt}\n\nIMPORTANT: Respond with valid JSON only. No markdown formatting or additional text."
+        
         response = await self.generate(
-            prompt=prompt,
+            prompt=json_prompt,
             model=model,
             temperature=temperature,
-            max_tokens=max_tokens
+            max_tokens=max_tokens,
+            system_prompt="You are a precise assistant that responds only with valid JSON."
         )
         
         if not response.success:
             raise Exception(f"LLM generation failed: {response.error}")
             
         try:
-            json_data = json.loads(response.content.strip())
+            # Clean up the response - remove markdown formatting if present
+            content = response.content.strip()
+            if content.startswith("```json"):
+                content = content[7:]
+            if content.endswith("```"):
+                content = content[:-3]
+            content = content.strip()
+            
+            json_data = json.loads(content)
             
             # Optional schema validation could be added here
             if schema:
@@ -149,335 +176,3 @@ class LLMClient:
         """Basic JSON schema validation - could use jsonschema library."""
         # Simplified validation - would implement full schema validation
         return True
-
-
-class EmergentLLMClient:
-    """
-    Simplified client for Emergent LLM integration.
-    In production, this would use the actual emergent integrations library.
-    """
-    
-    def __init__(self, api_key: str):
-        self.api_key = api_key
-        
-    async def generate(
-        self,
-        messages: List[Dict[str, str]],
-        model: str = "gpt-4",
-        temperature: float = 0.1,
-        max_tokens: int = 1000
-    ) -> Dict[str, Any]:
-        """
-        Generate response using emergent integrations.
-        This is a placeholder - actual implementation would use the emergent library.
-        """
-        
-        # For now, simulate an LLM response
-        # In production, this would make actual API calls through emergent integrations
-        
-        user_message = next((m["content"] for m in messages if m["role"] == "user"), "")
-        
-        # Simple pattern matching for demo purposes
-        if "json" in user_message.lower():
-            # Try to generate reasonable JSON responses based on prompt patterns
-            content = self._generate_mock_json_response(user_message)
-        else:
-            content = self._generate_mock_text_response(user_message)
-            
-        return {
-            "content": content,
-            "usage": {
-                "prompt_tokens": len(user_message.split()),
-                "completion_tokens": len(content.split()),
-                "total_tokens": len(user_message.split()) + len(content.split())
-            }
-        }
-        
-    def _generate_mock_json_response(self, prompt: str) -> str:
-        """Generate mock JSON responses based on prompt patterns."""
-        
-        # Detect domain from prompt
-        is_ml_domain = any(keyword in prompt.lower() for keyword in ["machine", "ml", "learning", "algorithm", "regression"])
-        is_logic_domain = any(keyword in prompt.lower() for keyword in ["logic", "constraint", "solver", "calculator"])
-        
-        # Exploit feature selection - look for various indicators
-        if ("selected_feature_paths" in prompt and 
-            any(keyword in prompt.lower() for keyword in ["exploit", "expanding", "high-relevance", "available.*features"])):
-            if is_logic_domain:
-                return json.dumps({
-                    "all_selected_feature_paths": [
-                        "logic/problem_solving/constraint_satisfaction",
-                        "logic/reasoning/boolean_logic", 
-                        "algorithms/search/backtracking",
-                        "data_structures/constraint_graph"
-                    ]
-                })
-            elif is_ml_domain:
-                return json.dumps({
-                    "all_selected_feature_paths": [
-                        "ml/algorithms/regression/linear",
-                        "ml/algorithms/classification/logistic",
-                        "ml/preprocessing/scaling",
-                        "ml/evaluation/metrics"
-                    ]
-                })
-            else:
-                # Default to core algorithms
-                return json.dumps({
-                    "all_selected_feature_paths": [
-                        "core/algorithms/sorting",
-                        "core/data_structures/array",
-                        "utils/helpers/validation",
-                        "core/math/calculator"
-                    ]
-                })
-            
-        # Explore feature selection - look for various indicators  
-        elif ("selected_feature_paths" in prompt and
-              any(keyword in prompt.lower() for keyword in ["explore", "exploration", "diversity", "breadth"])):
-            if is_logic_domain:
-                return json.dumps({
-                    "all_selected_feature_paths": [
-                        "logic/solvers/sat_solver",
-                        "algorithms/optimization/genetic"
-                    ]
-                })
-            elif is_ml_domain:
-                return json.dumps({
-                    "all_selected_feature_paths": [
-                        "ml/algorithms/clustering/kmeans",
-                        "ml/data/validation"
-                    ]
-                })
-            else:
-                return json.dumps({
-                    "all_selected_feature_paths": [
-                        "core/patterns/observer",
-                        "utils/io/file_handler"
-                    ]
-                })
-            
-        # Missing features
-        elif "missing_features" in prompt:
-            if is_logic_domain:
-                return json.dumps({
-                    "missing_features": {
-                        "logic": {
-                            "inference": ["forward_chaining", "backward_chaining"],
-                            "representation": ["predicate_logic", "first_order_logic"]
-                        }
-                    }
-                })
-            elif is_ml_domain:
-                return json.dumps({
-                    "missing_features": {
-                        "ml": {
-                            "optimization": ["gradient_descent", "adam_optimizer"],
-                            "utilities": ["data_splitter", "cross_validator"]
-                        }
-                    }
-                })
-            else:
-                return json.dumps({
-                    "missing_features": {
-                        "core": {
-                            "math": ["basic_operations", "advanced_functions"],
-                            "utilities": ["input_validator", "output_formatter"]
-                        }
-                    }
-                })
-            
-        # Folder skeleton
-        elif "folders" in prompt and "maps" in prompt:
-            if is_logic_domain:
-                return json.dumps({
-                    "folders": [
-                        {"name": "src/logic", "maps": ["Logic Components"]},
-                        {"name": "src/algorithms", "maps": ["Core Algorithms"]},
-                        {"name": "tests", "maps": ["Unit Tests"]}
-                    ],
-                    "files": []
-                })
-            elif is_ml_domain:
-                return json.dumps({
-                    "folders": [
-                        {"name": "src/algorithms", "maps": ["ML Algorithms"]},
-                        {"name": "src/data", "maps": ["Data Processing"]},
-                        {"name": "src/evaluation", "maps": ["Model Evaluation"]},
-                        {"name": "tests", "maps": ["Unit Tests"]}
-                    ],
-                    "files": []
-                })
-            else:
-                return json.dumps({
-                    "folders": [
-                        {"name": "src/core", "maps": ["Core Components"]},
-                        {"name": "src/utils", "maps": ["Utilities"]},
-                        {"name": "tests", "maps": ["Unit Tests"]}
-                    ],
-                    "files": []
-                })
-            
-        # File assignment - MUST be consistent with the capabilities generated above
-        elif ".py" in prompt and ("Group" in prompt or "assign" in prompt.lower()):
-            if is_logic_domain:
-                return json.dumps({
-                    "src/logic/solver.py": ["logic/problem_solving/constraint_satisfaction"],
-                    "src/algorithms/search.py": ["algorithms/search/backtracking"],
-                    "src/logic/reasoning.py": ["logic/reasoning/boolean_logic"]
-                })
-            elif is_ml_domain:
-                return json.dumps({
-                    "src/algorithms/regression.py": ["ml/algorithms/regression/linear"],
-                    "src/algorithms/classification.py": ["ml/algorithms/classification/logistic"],
-                    "src/data/preprocessing.py": ["ml/preprocessing/scaling"],
-                    "src/evaluation/metrics.py": ["ml/evaluation/metrics"]
-                })
-            else:
-                # Default to core features that match the exploit selection above
-                return json.dumps({
-                    "src/core/algorithms.py": ["core/algorithms/sorting"],
-                    "src/core/math.py": ["core/math/calculator"],
-                    "src/utils/helpers.py": ["utils/helpers/validation"]
-                })
-            
-        # Default JSON response
-        return json.dumps({"status": "success", "message": "Mock response generated"})
-        
-    def _generate_mock_text_response(self, prompt: str) -> str:
-        """Generate mock text responses."""
-        
-        if "base class" in prompt.lower():
-            return """```python
-class BaseEstimator:
-    \"\"\"Base class for all estimators.\"\"\"
-    
-    def fit(self, X, y=None):
-        \"\"\"Fit the estimator to training data.\"\"\"
-        raise NotImplementedError("Subclasses must implement fit method")
-        
-    def predict(self, X):
-        \"\"\"Make predictions on new data.\"\"\"
-        raise NotImplementedError("Subclasses must implement predict method")
-```"""
-        
-        elif "pytest" in prompt.lower() and "test" in prompt.lower():
-            # Generate actual test code
-            if "predict" in prompt.lower():
-                return """import pytest
-import numpy as np
-from src.logic.reasoning import predict
-
-def test_predict_basic():
-    \"\"\"Test basic prediction functionality.\"\"\"
-    # Arrange
-    X = np.array([[1, 2], [3, 4]])
-    
-    # Act
-    result = predict(X)
-    
-    # Assert
-    assert result is not None
-    assert len(result) == 2
-
-def test_predict_empty_input():
-    \"\"\"Test prediction with empty input.\"\"\"
-    X = np.array([]).reshape(0, 2)
-    result = predict(X)
-    assert len(result) == 0
-"""
-            elif "fit" in prompt.lower():
-                return """import pytest
-import numpy as np
-from src.logic.reasoning import fit
-
-def test_fit_basic():
-    \"\"\"Test basic fitting functionality.\"\"\"
-    # Arrange
-    X = np.array([[1, 2], [3, 4]])
-    y = np.array([1, 0])
-    
-    # Act
-    result = fit(X, y)
-    
-    # Assert
-    assert result is not None
-
-def test_fit_validation():
-    \"\"\"Test input validation.\"\"\"
-    X = np.array([[1, 2]])
-    y = np.array([1])
-    result = fit(X, y)
-    assert result is not None
-"""
-            else:
-                return """import pytest
-
-def test_function():
-    \"\"\"Basic test for the function.\"\"\"
-    result = True
-    assert result is True
-"""
-        
-        elif "interface" in prompt.lower() and "python" in prompt.lower():
-            # Generate actual implementation code
-            if "predict" in prompt.lower():
-                return """import numpy as np
-from typing import Optional
-
-def predict(X: np.ndarray) -> np.ndarray:
-    \"\"\"
-    Make predictions on input data.
-    
-    Args:
-        X: Input feature matrix
-        
-    Returns:
-        Prediction array
-    \"\"\"
-    # Simple implementation for testing
-    if len(X) == 0:
-        return np.array([])
-    
-    # Mock prediction logic
-    predictions = np.zeros(len(X))
-    for i, row in enumerate(X):
-        predictions[i] = np.sum(row) % 2  # Simple binary prediction
-    
-    return predictions
-"""
-            elif "fit" in prompt.lower():
-                return """import numpy as np
-from typing import Optional
-
-def fit(X: np.ndarray, y: np.ndarray) -> object:
-    \"\"\"
-    Fit the model to training data.
-    
-    Args:
-        X: Training feature matrix
-        y: Training target values
-        
-    Returns:
-        Fitted model object
-    \"\"\"
-    # Simple fitting implementation
-    if len(X) == 0 or len(y) == 0:
-        return None
-        
-    # Mock fitting logic
-    params = {
-        'weights': np.random.randn(X.shape[1]),
-        'bias': 0.0,
-        'fitted': True
-    }
-    
-    return params
-"""
-            else:
-                return """def simple_function():
-    \"\"\"Simple function implementation.\"\"\"
-    return True
-"""
-        
-        return "# Interface specification placeholder\npass"
