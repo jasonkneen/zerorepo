@@ -3,10 +3,13 @@ Vector Store for feature embeddings using FAISS.
 Supports feature search, similarity matching, and diversity sampling.
 """
 
+import os
+# Set before importing to avoid multiprocessing issues
+os.environ['TOKENIZERS_PARALLELISM'] = 'false'
+
 import faiss
 import numpy as np
 import pickle
-import os
 from typing import List, Optional, Dict, Tuple
 from sentence_transformers import SentenceTransformer
 from ..core.models import FeaturePath
@@ -44,9 +47,35 @@ class VectorStore:
             
         logger.info(f"Adding {len(feature_paths)} features to vector store")
         
-        # Create embeddings
+        # Create embeddings with batching to avoid broken pipe
         texts = [self._feature_to_text(fp) for fp in feature_paths]
-        embeddings = self.encoder.encode(texts)
+        
+        if not texts:
+            return
+            
+        # Process in smaller batches to avoid broken pipe issues
+        batch_size = 32
+        embeddings_list = []
+        for i in range(0, len(texts), batch_size):
+            batch_texts = texts[i:i + batch_size]
+            try:
+                batch_embeddings = self.encoder.encode(batch_texts, show_progress_bar=False)
+                embeddings_list.append(batch_embeddings)
+            except Exception as e:
+                logger.error(f"Error encoding batch {i//batch_size}: {e}")
+                # Try with smaller batch or individual items
+                for text in batch_texts:
+                    try:
+                        single_embedding = self.encoder.encode([text], show_progress_bar=False)
+                        embeddings_list.append(single_embedding)
+                    except Exception as e2:
+                        logger.error(f"Error encoding single text: {e2}")
+        
+        if not embeddings_list:
+            logger.error("No embeddings created")
+            return
+            
+        embeddings = np.vstack(embeddings_list)
         
         # Normalize for cosine similarity
         faiss.normalize_L2(embeddings)
@@ -122,9 +151,14 @@ class VectorStore:
             logger.warning("Vector store is empty")
             return []
             
-        # Encode query
-        query_embedding = self.encoder.encode([query])
-        faiss.normalize_L2(query_embedding)
+        # Encode query with error handling
+        try:
+            query_embedding = self.encoder.encode([query], show_progress_bar=False)
+            faiss.normalize_L2(query_embedding)
+        except Exception as e:
+            logger.error(f"Error encoding query '{query}': {e}")
+            # Return empty results on encoding error
+            return []
         
         # Search
         scores, indices = self.index.search(query_embedding.astype(np.float32), min(k * 2, self.index.ntotal))

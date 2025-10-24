@@ -188,6 +188,7 @@ const GenerationPage = ({ isDarkMode, setIsDarkMode }) => {
     textMuted: isDarkMode ? "text-zinc-500" : "text-gray-500",
     input: isDarkMode ? "bg-zinc-800 border-zinc-600 text-white placeholder-zinc-400" : "bg-white border-gray-300 text-black placeholder-gray-400",
     inputFocus: isDarkMode ? "focus:border-zinc-400 focus:ring-zinc-400" : "focus:border-black focus:ring-black",
+    progressTrack: isDarkMode ? "bg-zinc-700" : "bg-gray-200",
     buttonPrimary: isDarkMode ? "bg-white text-black hover:bg-zinc-200" : "bg-black text-white hover:bg-gray-800",
     buttonSecondary: isDarkMode ? "bg-zinc-700 text-white hover:bg-zinc-600 border-zinc-600" : "bg-white text-gray-700 hover:bg-gray-50 border-gray-300",
     headerBorder: isDarkMode ? "border-zinc-800" : "border-gray-200",
@@ -841,7 +842,7 @@ const LiveProgressTracker = ({ jobProgress, generatedFiles, themeClasses }) => (
           </span>
         </div>
         
-        <div className={`w-full ${isDarkMode ? "bg-zinc-700" : "bg-gray-200"} rounded-full h-4 shadow-inner`}>
+        <div className={`w-full ${themeClasses.progressTrack} rounded-full h-4 shadow-inner`}>
           <div 
             className="bg-gradient-to-r from-blue-500 to-purple-500 h-4 rounded-full transition-all duration-1000 shadow-lg relative overflow-hidden"
             style={{ width: `${jobProgress.progress}%` }}

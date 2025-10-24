@@ -6,6 +6,7 @@ Stage C: Graph-Guided Code Generation
 import os
 import ast
 import asyncio
+import re
 from typing import List, Dict, Optional, Tuple, Set
 from ..core.models import RPG, RPGNode, ProjectConfig, Interface, GenerationResult
 from ..tools.llm_client import LLMClient
@@ -33,6 +34,36 @@ class CodeGenerator:
         self.docker_runner = docker_runner
         self.generated_files: Set[str] = set()
         self.failed_files: Set[str] = set()
+
+    def _extract_code_block(self, raw_content: str) -> str:
+        """Extract executable code from an LLM response."""
+        if not raw_content:
+            return ""
+
+        content = raw_content.strip()
+        if not content:
+            return ""
+
+        # Look for code blocks with triple backticks
+        # Match ```python, ```py, or just ```
+        pattern = r"```(?:python|py)?\s*\n([\s\S]*?)```"
+        matches = re.findall(pattern, content, re.IGNORECASE)
+        
+        if matches:
+            # Return the first code block found
+            return matches[0].strip()
+        
+        # If no fenced code blocks found, check if entire content looks like code
+        # (no natural language indicators)
+        if not any(indicator in content.lower() for indicator in 
+                   ["here is", "here's", "this is", "below is", "following", 
+                    "implementation", "solution", "fixed", "corrected"]):
+            # Might be raw code, return as-is
+            return content
+        
+        # Content appears to have explanation text but no code blocks
+        logger.warning("No code blocks found in LLM response, returning empty")
+        return ""
         
     async def generate_repository(self, rpg: RPG, interfaces: Dict[str, str], output_dir: str) -> GenerationResult:
         """
@@ -183,9 +214,18 @@ class CodeGenerator:
                     temperature=0.2,
                     max_tokens=2000
                 )
-                
-                impl_code = fixed_code.content
-                
+
+                if not fixed_code.success:
+                    logger.error(f"Fix attempt LLM error for {node.name}: {fixed_code.error}")
+                    break
+
+                sanitized = self._extract_code_block(fixed_code.content)
+                if not sanitized:
+                    logger.error(f"Fix attempt returned no usable code for {node.name}")
+                    break
+
+                impl_code = sanitized
+
             except Exception as e:
                 logger.error(f"Error in fix attempt for {node.name}: {str(e)}")
                 break
@@ -225,8 +265,13 @@ Output: Complete test module code."""
                 temperature=0.1,
                 max_tokens=1000
             )
-            return response.content
-            
+
+            if not response.success:
+                logger.error(f"LLM failed to produce test for {node.name}: {response.error}")
+                return ""
+
+            return self._extract_code_block(response.content)
+
         except Exception as e:
             logger.error(f"Failed to generate test for {node.name}: {str(e)}")
             return ""
@@ -267,8 +312,13 @@ Output: Complete implementation code."""
                 temperature=0.3,
                 max_tokens=1500
             )
-            return response.content
-            
+
+            if not response.success:
+                logger.error(f"LLM failed to produce implementation for {node.name}: {response.error}")
+                return ""
+
+            return self._extract_code_block(response.content)
+
         except Exception as e:
             logger.error(f"Failed to generate implementation for {node.name}: {str(e)}")
             return ""

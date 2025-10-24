@@ -7,6 +7,7 @@ import os
 import shlex
 import tempfile
 import asyncio
+import sys
 from pathlib import Path
 from typing import Dict, List, Optional
 import logging
@@ -21,10 +22,15 @@ class DockerTestRunner:
     Provides sandboxed environment for running pytest and validating generated code.
     """
     
-    def __init__(self, base_image: str = "python:3.11-slim"):
+    def __init__(self, base_image: str = "python:3.11-slim", use_docker: bool = False):
         self.base_image = base_image
+        self.use_docker = use_docker
         self.client = None
-        self._setup_docker_client()
+
+        if self.use_docker:
+            self._setup_docker_client()
+        else:
+            logger.info("Docker disabled; using subprocess test runner")
         
     def _setup_docker_client(self):
         """Initialize Docker client."""
@@ -55,9 +61,9 @@ class DockerTestRunner:
             }
             
         # If Docker is not available, use subprocess fallback
-        if self.client is None:
+        if not self.use_docker or self.client is None:
             return await self._run_tests_subprocess(test_file_path, timeout)
-            
+
         return await self._run_tests_docker(test_file_path, timeout)
         
     async def run_all_tests(self, project_dir: str, timeout: int = 120) -> Dict:
@@ -83,9 +89,9 @@ class DockerTestRunner:
             }
             
         # If Docker is not available, use subprocess fallback
-        if self.client is None:
+        if not self.use_docker or self.client is None:
             return await self._run_all_tests_subprocess(project_dir, timeout)
-            
+
         return await self._run_all_tests_docker(project_dir, timeout)
         
     async def _run_tests_docker(self, test_file_path: str, timeout: int) -> Dict:
@@ -110,14 +116,14 @@ class DockerTestRunner:
                 command_steps = install_steps + [pytest_command]
                 command = "bash -c \"{}\"".format(" && ".join(command_steps))
 
-                # Create container
+                # Create container (don't auto-remove to ensure we can get logs)
                 container = self.client.containers.run(
                     self.base_image,
                     command=command,
                     volumes={temp_dir: {'bind': '/project', 'mode': 'rw'}},
                     working_dir='/project',
                     detach=True,
-                    remove=True,
+                    remove=False,  # Don't auto-remove so we can get logs
                     network_mode='none',  # No network access
                     mem_limit='512m',     # Memory limit
                     cpu_count=1
@@ -128,6 +134,12 @@ class DockerTestRunner:
                     result = container.wait(timeout=timeout)
                     output = container.logs().decode('utf-8')
                     
+                    # Clean up container after getting logs
+                    try:
+                        container.remove()
+                    except:
+                        pass  # Container may already be removed
+                    
                     return {
                         "success": result['StatusCode'] == 0,
                         "output": output,
@@ -136,12 +148,40 @@ class DockerTestRunner:
                     }
                     
                 except docker.errors.ContainerError as e:
+                    # Try to get logs before container is removed
+                    try:
+                        output = container.logs().decode('utf-8')
+                    except:
+                        output = str(e)
+                    
+                    # Clean up container
+                    try:
+                        container.remove()
+                    except:
+                        pass
+                    
                     return {
                         "success": False,
-                        "output": str(e),
+                        "output": output,
                         "error": "Container execution error"
                     }
+                except Exception as e:
+                    # Clean up container on any error
+                    try:
+                        container.remove()
+                    except:
+                        pass
                     
+                    raise
+                    
+        except (docker.errors.DockerException, FileNotFoundError) as e:
+            logger.warning(
+                f"Docker unavailable during test run, falling back to subprocess: {str(e)}"
+            )
+            self.client = None
+            self.use_docker = False
+            return await self._run_tests_subprocess(test_file_path, timeout)
+
         except Exception as e:
             logger.error(f"Docker test execution error: {str(e)}")
             return {
@@ -159,7 +199,7 @@ class DockerTestRunner:
             project_dir = self._get_project_root(test_file_path)
             rel_test_path = os.path.relpath(test_file_path, project_dir)
 
-            cmd = ["python", "-m", "pytest", rel_test_path, "-v", "--tb=short"]
+            cmd = [sys.executable, "-m", "pytest", rel_test_path, "-v", "--tb=short"]
 
             # Run with timeout
             process = await asyncio.create_subprocess_exec(
@@ -253,6 +293,14 @@ class DockerTestRunner:
                         "error": "Container execution error"
                     }
                     
+        except (docker.errors.DockerException, FileNotFoundError) as e:
+            logger.warning(
+                f"Docker unavailable during integration tests, falling back to subprocess: {str(e)}"
+            )
+            self.client = None
+            self.use_docker = False
+            return await self._run_all_tests_subprocess(project_dir, timeout)
+
         except Exception as e:
             logger.error(f"Docker integration test error: {str(e)}")
             return {
@@ -270,7 +318,7 @@ class DockerTestRunner:
         try:
             import subprocess
             
-            cmd = ["python", "-m", "pytest", "tests/", "-v", "--tb=short"]
+            cmd = [sys.executable, "-m", "pytest", "tests/", "-v", "--tb=short"]
             
             process = await asyncio.create_subprocess_exec(
                 *cmd,

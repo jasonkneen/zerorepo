@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
+# Disable tokenizer parallelism to avoid fork issues
+os.environ['TOKENIZERS_PARALLELISM'] = 'false'
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field
